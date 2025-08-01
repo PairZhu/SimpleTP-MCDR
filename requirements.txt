@@ -1,0 +1,2 @@
+mcdreforged==2.14.7
+readerwriterlock==1.0.9
