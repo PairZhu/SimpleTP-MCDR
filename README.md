@@ -3,8 +3,13 @@
 
 A simple teleport plugin aiming to match and extend EssentialsX teleport features.
 
+## Preview
+![1754023706691](image/README/1754023706691.png)
+
 ## Features and Commands
 The following examples use the default prefix "!!stp". Adjust according to your configuration file.
+
+Some clickable operations require the support of the patch [LetMeClickAndSendForServer](https://github.com/Fallen-Breath/LetMeClickAndSendForServer) or [LetMeClickAndSend](https://github.com/Fallen-Breath/LetMeClickAndSend).
 
 ### Personal Waypoints
 Players can create and manage their own waypoints, which are only visible to themselves.

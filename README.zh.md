@@ -3,8 +3,13 @@
 
 一个简单的传送插件，旨在实现和扩展EssentialsX的传送功能。
 
+## 预览
+![1754023706691](image/README/1754023706691.png)
+
 ## 特点和命令
 下文以默认前缀"!!stp"为例，实际使用时请根据配置文件中的前缀进行调整。
+
+其中部分点击操作需要补丁 [LetMeClickAndSendForServer](https://github.com/Fallen-Breath/LetMeClickAndSendForServer) 或 [LetMeClickAndSend](https://github.com/Fallen-Breath/LetMeClickAndSend) 支持。
 
 ### 个人传送点
 玩家可以创建和管理自己的传送点，仅对自己可见。
