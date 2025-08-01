@@ -37,7 +37,6 @@ class DataManager:
     def __init__(self, data: SimpleTPData):
         self._data = data
         self._global_rwlock = RWLockFair()
-        self._personal_player_rwlock = RWLockFair()
         self._personal_rwlock: Dict[str, RWLockFair] = {}
         self._personal_locks_rwlock = RWLockFair()
 
@@ -57,9 +56,8 @@ class DataManager:
 
     def get_personal_waypoints(self, player: str) -> Dict[str, List[float]]:
         lock = self.get_personal_lock(player)
-        with self._personal_player_rwlock.gen_rlock():
-            with lock.gen_rlock():
-                return self._data.personal_waypoints.get(player, {}).copy()
+        with lock.gen_rlock():
+            return self._data.personal_waypoints.get(player, {}).copy()
 
     def set_global_waypoints(self, waypoints: Dict[str, List[float]]):
         with self._global_rwlock.gen_wlock():
@@ -67,15 +65,8 @@ class DataManager:
 
     def set_personal_waypoints(self, player: str, waypoints: Dict[str, List[float]]):
         lock = self.get_personal_lock(player)
-        with self._personal_player_rwlock.gen_rlock():
-            if player in self._data.personal_waypoints:
-                with lock.gen_wlock():
-                    self._data.personal_waypoints[player] = waypoints
-                return
-
-        with self._personal_player_rwlock.gen_wlock():
-            with lock.gen_wlock():
-                self._data.personal_waypoints[player] = waypoints
+        with lock.gen_wlock():
+            self._data.personal_waypoints[player] = waypoints
 
     def delete_global_waypoint(self, waypoint_name: str):
         with self._global_rwlock.gen_wlock():
@@ -84,17 +75,13 @@ class DataManager:
 
     def delete_personal_waypoint(self, player: str, waypoint_name: str):
         lock = self.get_personal_lock(player)
-        with self._personal_player_rwlock.gen_rlock():
-            if player not in self._data.personal_waypoints:
-                return
-            with lock.gen_wlock():
-                if waypoint_name in self._data.personal_waypoints[player]:
-                    del self._data.personal_waypoints[player][waypoint_name]
+        with lock.gen_wlock():
+            if waypoint_name in self._data.personal_waypoints[player]:
+                del self._data.personal_waypoints[player][waypoint_name]
 
     def get_data(self) -> SimpleTPData:
         with self._global_rwlock.gen_rlock():
-            with self._personal_player_rwlock.gen_rlock():
-                return self._data.copy()
+            return self._data.copy()
 
 
 data_manager: DataManager
