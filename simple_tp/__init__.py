@@ -281,6 +281,14 @@ def teleport_to_waypoint(
     cur_position = get_player_position(
         player, plugin_server, data_manager.dimension_str2sid, config.extra_dimensions
     )
+    if data_manager.dimension_sid2str[cur_position.dimension] not in config.worlds:
+        source.reply(
+            mcdr.RText(
+                "You are in a dimension not enabled in the config.",
+                color=constants.ERROR_COLOR,
+            )
+        )
+        return
     if cur_position is None:
         source.reply(
             mcdr.RText(
@@ -302,6 +310,14 @@ def teleport_to_waypoint(
         return
 
     position = waypoint_dict[waypoint_name]
+    if data_manager.dimension_sid2str[position.dimension] not in config.worlds:
+        source.reply(
+            mcdr.RText(
+                f"Waypoint '{waypoint_name}' is in a dimension not enabled in the config: {data_manager.dimension_sid2str[position.dimension]}",
+                color=constants.ERROR_COLOR,
+            )
+        )
+        return
     plugin_server.execute(
         f"execute in {data_manager.dimension_sid2str[position.dimension]} run tp {player} {position.x} {position.y} {position.z}"
     )
