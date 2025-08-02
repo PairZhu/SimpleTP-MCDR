@@ -1,6 +1,6 @@
 {
     "id": "simple_tp",
-    "version": "1.0.0",
+    "version": "1.1.1",
     "name": "Simple TP",
     "description": {
         "en_us": "A simple teleport plugin aiming to match and extend EssentialsX teleport features.",

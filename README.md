@@ -32,6 +32,7 @@ Global waypoints are visible to all players and suitable for public areas.
 The configuration file is located at `config/SimpleTP/config.json`
 - **prefix**: Command prefix, default is `!!stp`
 - **back_on_death**: Whether to automatically record the position upon player death, default is `true`
+- **save_interval**: Interval for scheduled saving of waypoint data, in seconds, default is `30` seconds
 - **permissions**: Permission configuration
 - **worlds**: List of supported dimensions (including mod dimensions), default is `["minecraft:overworld", "minecraft:the_nether", "minecraft:the_end"]`. Teleportation will not work in dimensions not in this list. To disable teleportation in a dimension, simply remove it from the list.
 
@@ -64,7 +65,7 @@ Sorted by priority:
 - [x] `back` command supports round-trip teleportation
 - [x] Record player's dimension in waypoints (Nether, Overworld, End)
 - [x] Configuration for cross-dimension teleportation
-- [ ] Scheduled saving of waypoint data (to prevent loss on crash)
+- [x] Scheduled saving of waypoint data (to prevent loss on crash)
 - [ ] `tp`/`tphere` functionality
 - [ ] `tpa`/`tpahere` functionality
 - [ ] Add help information

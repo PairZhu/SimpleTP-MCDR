@@ -34,6 +34,7 @@
 配置文件位于`config/SimpleTP/config.json`
 - **prefix**: 命令前缀，默认为`!!stp`
 - **back_on_death**: 是否在玩家死亡后自动记录位置，默认为`true`
+- **save_interval**: 定时保存传送点数据的间隔时间，单位为秒，默认为`30`秒
 - **permissions**: 权限配置
 - **worlds**: 支持的维度列表（支持Mod中的异维度世界），默认为`["minecraft:overworld", "minecraft:the_nether", "minecraft:the_end"]`，不在此列表中的维度将无法使用传送功能，如要禁用某个维度的传送功能，将其从列表中移除即可。
 
@@ -68,7 +69,7 @@
 - [x] back 命令支持往返传送
 - [x] 传送点记录玩家的维度（下界、主世界、末地）
 - [x] 是否允许跨维度传送配置
-- [ ] 定时保存传送点数据（防崩溃丢失）
+- [x] 定时保存传送点数据（防崩溃丢失）
 - [ ] tp/tphere 功能
 - [ ] tpa/tpahere 功能
 - [ ] 增加帮助信息
