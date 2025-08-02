@@ -35,6 +35,7 @@ The configuration file is located at `config/SimpleTP/config.json`
 - **save_interval**: Interval for scheduled saving of waypoint data, in seconds, default is `30` seconds
 - **permissions**: Permission configuration
 - **worlds**: List of supported dimensions (including mod dimensions), default is `["minecraft:overworld", "minecraft:the_nether", "minecraft:the_end"]`. Teleportation will not work in dimensions not in this list. To disable teleportation in a dimension, simply remove it from the list.
+- **extra_dimensions**: ***Only required for Minecraft versions before 1.16***, configuration format is `{<dimension_id>: "<dimension_name>"}`, for example `{0: "minecraft:overworld", 1: "minecraft:the_nether", 2: "minecraft:the_end"}`. This configuration is used to support mod dimensions in older Minecraft versions.
 
 ### Permission Configuration
 - **back**: Permission to use `!!stp back` command
@@ -58,6 +59,8 @@ The configuration file is located at `config/SimpleTP/config.json`
     Some mod death messages are special and may not be detected by mg_events. You need to manually add corresponding death messages in mg_events language files. For example, for the [Eternal Starlight](https://www.curseforge.com/minecraft/mc-mods/eternal-starlight) mod, when players die in the Ether, add `"death.attack.ether": "%1$s drifts away"` to `config/mg_events/lang/en_us.json`, and `"death.attack.ether": "%1$s飘然而去"` to `config/mg_events/lang/zh_cn.json`.
 - **Log Shows "Player {player} is in a dimension not enabled in config: {dimension}"**
     This indicates the player is in a dimension not enabled in the configuration. Check the `worlds` configuration in `config/SimpleTP/config.json` to ensure the dimension is included.
+- **Log Shows "Player {player} is in an unknown dimension with ID {dimension}"**
+    This error may occur when the server Minecraft version is before 1.16 and mod dimensions are installed. Check the `extra_dimensions` configuration in `config/SimpleTP/config.json` to ensure the dimension is included. You can get the dimension ID using the `/data get entity <player> Dimension` command.
 
 ## TODO
 Sorted by priority:
