@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Union, Iterable, Optional
+from typing import Dict, List, Literal, Union, Iterable, Optional, NamedTuple
 from readerwriterlock.rwlock import RWLockFair
 
 import minecraft_data_api as api
@@ -21,21 +21,54 @@ class Config(mcdr.Serializable):
         tp_xyz: int = 2
         personal_waypoint: int = 1
         global_waypoint: int = 2
+        cross_world_tp: int = 1
 
     permissions: __Permissions = __Permissions()
+
+    worlds: List[str] = [
+        "minecraft:overworld",
+        "minecraft:the_nether",
+        "minecraft:the_end",
+    ]
 
 
 config: Config
 
 
 class SimpleTPData(mcdr.Serializable):
-    personal_waypoints: Dict[str, Dict[str, List[float]]] = {}
-    global_waypoints: Dict[str, List[float]] = {}
+    personal_waypoints: Dict[str, Dict[str, List[Union[float, int]]]] = {}
+    global_waypoints: Dict[str, List[Union[float, int]]] = {}
+
+
+class CoordWithDimension(NamedTuple):
+    x: float
+    y: float
+    z: float
+    dimension: int
 
 
 class DataManager:
     def __init__(self, data: SimpleTPData):
-        self._data = data
+        self._global_waypoints: Dict[str, CoordWithDimension] = {
+            name: CoordWithDimension(
+                coords[0],
+                coords[1],
+                coords[2],
+                int(coords[3]) if len(coords) > 3 else 0,
+            )
+            for name, coords in data.global_waypoints.items()
+        }
+        self._personal_waypoints: Dict[str, Dict[str, CoordWithDimension]] = {}
+        for player, waypoints in data.personal_waypoints.items():
+            self._personal_waypoints[player] = {
+                name: CoordWithDimension(
+                    coords[0],
+                    coords[1],
+                    coords[2],
+                    int(coords[3]) if len(coords) > 3 else 0,
+                )
+                for name, coords in waypoints.items()
+            }
         self._global_rwlock = RWLockFair()
         self._personal_rwlock: Dict[str, RWLockFair] = {}
         self._personal_locks_rwlock = RWLockFair()
@@ -50,38 +83,53 @@ class DataManager:
             self._personal_rwlock[player] = lock
         return lock
 
-    def get_global_waypoints(self) -> Dict[str, List[float]]:
+    def get_global_waypoints(self) -> Dict[str, CoordWithDimension]:
         with self._global_rwlock.gen_rlock():
-            return self._data.global_waypoints.copy()
+            return self._global_waypoints.copy()
 
-    def get_personal_waypoints(self, player: str) -> Dict[str, List[float]]:
+    def get_personal_waypoints(self, player: str) -> Dict[str, CoordWithDimension]:
         lock = self.get_personal_lock(player)
         with lock.gen_rlock():
-            return self._data.personal_waypoints.get(player, {}).copy()
+            return self._personal_waypoints.get(player, {}).copy()
 
-    def set_global_waypoints(self, waypoints: Dict[str, List[float]]):
+    def set_global_waypoints(self, waypoints: Dict[str, CoordWithDimension]):
         with self._global_rwlock.gen_wlock():
-            self._data.global_waypoints = waypoints
+            self._global_waypoints = waypoints
 
-    def set_personal_waypoints(self, player: str, waypoints: Dict[str, List[float]]):
+    def set_personal_waypoints(
+        self, player: str, waypoints: Dict[str, CoordWithDimension]
+    ):
         lock = self.get_personal_lock(player)
         with lock.gen_wlock():
-            self._data.personal_waypoints[player] = waypoints
+            self._personal_waypoints[player] = waypoints
 
     def delete_global_waypoint(self, waypoint_name: str):
         with self._global_rwlock.gen_wlock():
-            if waypoint_name in self._data.global_waypoints:
-                del self._data.global_waypoints[waypoint_name]
+            if waypoint_name in self._global_waypoints:
+                del self._global_waypoints[waypoint_name]
 
     def delete_personal_waypoint(self, player: str, waypoint_name: str):
         lock = self.get_personal_lock(player)
         with lock.gen_wlock():
-            if waypoint_name in self._data.personal_waypoints[player]:
-                del self._data.personal_waypoints[player][waypoint_name]
+            if waypoint_name in self._personal_waypoints[player]:
+                del self._personal_waypoints[player][waypoint_name]
 
-    def get_data(self) -> SimpleTPData:
+    def get_simple_tp_data(self) -> SimpleTPData:
+        data = SimpleTPData()
         with self._global_rwlock.gen_rlock():
-            return self._data.copy()
+            data.global_waypoints = {
+                name: [coord.x, coord.y, coord.z, coord.dimension]
+                for name, coord in self._global_waypoints.items()
+            }
+        with self._personal_locks_rwlock.gen_rlock():
+            data.personal_waypoints = {
+                player: {
+                    name: [coord.x, coord.y, coord.z, coord.dimension]
+                    for name, coord in waypoints.items()
+                }
+                for player, waypoints in self._personal_waypoints.items()
+            }
+        return data
 
 
 data_manager: DataManager
@@ -230,11 +278,28 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
     )
 
 
+def get_player_position(player: str) -> Optional[CoordWithDimension]:
+    try:
+        coord = api.get_player_coordinate(player)
+        dimension = api.get_player_info(player, "Dimension")
+    except Exception as e:
+        plugin_server.logger.error(f"Error getting position for player {player}: {e}")
+        return None
+    if type(dimension) is int:
+        dimension = constants.DIM_ID2STR.get(dimension)
+    if dimension not in config.worlds:
+        plugin_server.logger.warning(
+            f"Player {player} is in a dimension not enabled in config: {dimension}"
+        )
+        return None
+    dim_id = config.worlds.index(dimension)
+    return CoordWithDimension(coord.x, coord.y, coord.z, dim_id)
+
+
 @mcdr.new_thread("on_player_death")
 def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str, _):
-    try:
-        old_position = api.get_player_coordinate(player)
-    except ValueError as e:
+    death_position = get_player_position(player)
+    if death_position is None:
         server.tell(
             player,
             mcdr.RText(
@@ -242,15 +307,12 @@ def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str,
                 constants.ERROR_COLOR,
             ),
         )
-        server.logger.error(f"Error retrieving position for player {player}: {e}")
         return
 
     personal_waypoints = data_manager.get_personal_waypoints(player)
-    personal_waypoints[constants.BACK_WAYPOINT_ID] = [
-        old_position.x,
-        old_position.y,
-        old_position.z,
-    ]
+    personal_waypoints[constants.BACK_WAYPOINT_ID] = CoordWithDimension(
+        death_position.x, death_position.y, death_position.z, death_position.dimension
+    )
     data_manager.set_personal_waypoints(player, personal_waypoints)
 
 
@@ -365,25 +427,34 @@ def teleport_to_waypoint(
             )
         return
 
-    try:
-        old_position = api.get_player_coordinate(player)
-    except ValueError as e:
+    cur_position = get_player_position(player)
+    if cur_position is None:
         source.reply(
             mcdr.RText(
                 "Failed to retrieve your position. Please ask an admin to check the server logs.",
                 constants.ERROR_COLOR,
             )
         )
-        plugin_server.logger.error(
-            f"Error retrieving position for player {player}: {e}"
+        return
+
+    if cur_position.dimension != waypoint_dict[
+        waypoint_name
+    ].dimension and not source.has_permission(config.permissions.cross_world_tp):
+        source.reply(
+            mcdr.RText(
+                "You have no permission to teleport across dimensions.",
+                color=constants.ERROR_COLOR,
+            )
         )
         return
 
-    position = api.Coordinate(*waypoint_dict[waypoint_name])
-    plugin_server.execute(f"tp {player} {position.x} {position.y} {position.z}")
+    position = waypoint_dict[waypoint_name]
+    plugin_server.execute(
+        f"execute in {config.worlds[position.dimension]} run tp {player} {position.x} {position.y} {position.z}"
+    )
     source.reply(
         mcdr.RText(
-            f"Teleporting to waypoint '{waypoint_name}': ({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
+            f"Teleporting to waypoint '{waypoint_name}': {config.worlds[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
             color=constants.SUCCESS_COLOR,
         )
     )
@@ -392,11 +463,7 @@ def teleport_to_waypoint(
         personal_waypoints = data_manager.get_personal_waypoints(player)
     else:
         personal_waypoints = waypoint_dict
-    personal_waypoints[constants.BACK_WAYPOINT_ID] = [
-        old_position.x,
-        old_position.y,
-        old_position.z,
-    ]
+    personal_waypoints[constants.BACK_WAYPOINT_ID] = cur_position
     data_manager.set_personal_waypoints(player, personal_waypoints)
 
 
@@ -424,39 +491,36 @@ def set_waypoint(
         return
 
     player = source.player
-    try:
-        position = api.get_player_coordinate(player)
-    except ValueError as e:
+    position = get_player_position(player)
+    if position is None:
         source.reply(
             mcdr.RText(
                 "Failed to retrieve your position. Please ask an admin to check the server logs.",
                 constants.ERROR_COLOR,
             )
         )
-        plugin_server.logger.error(
-            f"Error retrieving position for player {player}: {e}"
-        )
         return
+
     if is_global:
         waypoint_dict = data_manager.get_global_waypoints()
     else:
         waypoint_dict = data_manager.get_personal_waypoints(player)
     if waypoint_name in waypoint_dict:
-        old_position = api.Coordinate(*waypoint_dict[waypoint_name])
+        old_position = waypoint_dict[waypoint_name]
         source.reply(
             mcdr.RText(
-                f"Waypoint '{waypoint_name}': ({old_position.x:.2f}, {old_position.y:.2f}, {old_position.z:.2f}) already exists, and will be overwritten.",
+                f"Waypoint '{waypoint_name}': {config.worlds[old_position.dimension]}({old_position.x:.2f}, {old_position.y:.2f}, {old_position.z:.2f}) already exists, and will be overwritten.",
                 color=constants.WARNING_COLOR,
             )
         )
-    waypoint_dict[waypoint_name] = [position.x, position.y, position.z]
+    waypoint_dict[waypoint_name] = position
     if is_global:
         data_manager.set_global_waypoints(waypoint_dict)
     else:
         data_manager.set_personal_waypoints(player, waypoint_dict)
     source.reply(
         mcdr.RText(
-            f"Waypoint '{waypoint_name}' successfully set to your current position: ({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
+            f"Waypoint '{waypoint_name}' successfully set to your current position: {config.worlds[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
             color=constants.SUCCESS_COLOR,
         )
     )
@@ -465,6 +529,13 @@ def set_waypoint(
 def get_waypoints_messages(
     source: mcdr.CommandSource, scope: Literal["personal", "global", "all"] = "all"
 ) -> mcdr.RText:
+    def get_dim_color(dim_id: int) -> mcdr.RColor:
+        if dim_id >= len(constants.DIM_COLORS):
+            return constants.DIM_COLORS[
+                -1
+            ]  # Fallback to last color if dim_id is out of range
+        return constants.DIM_COLORS[dim_id]
+
     replyTextLines: List[mcdr.RText] = []
     if source.is_player and scope != "global":
         assert isinstance(source, mcdr.PlayerCommandSource)
@@ -477,12 +548,12 @@ def get_waypoints_messages(
                 mcdr.RText("No personal waypoints found.", color=mcdr.RColor.gray)
             )
         for name, pos in waypoints.items():
-            pos = api.Coordinate(*pos)
             if name == constants.BACK_WAYPOINT_ID:
                 continue
 
-            rtext = mcdr.RText(name, color=mcdr.RColor.yellow) + mcdr.RText(
-                f": ({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})", color=mcdr.RColor.gray
+            rtext = mcdr.RText(name, color=get_dim_color(pos.dimension)) + mcdr.RText(
+                f": {config.worlds[pos.dimension]}({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})",
+                color=mcdr.RColor.gray,
             )
 
             if source.is_player:
@@ -515,9 +586,9 @@ def get_waypoints_messages(
                 mcdr.RText("No global waypoints found.", color=mcdr.RColor.gray)
             )
         for name, pos in waypoints.items():
-            pos = api.Coordinate(*pos)
-            rtext = mcdr.RText(name, color=mcdr.RColor.yellow) + mcdr.RText(
-                f": ({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})", color=mcdr.RColor.gray
+            rtext = mcdr.RText(name, color=get_dim_color(pos.dimension)) + mcdr.RText(
+                f": {config.worlds[pos.dimension]}({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})",
+                color=mcdr.RColor.gray,
             )
             if source.is_player:
                 rtext += "  " + get_command_button(
@@ -561,4 +632,4 @@ def get_command_button(
 
 
 def on_unload(server: mcdr.PluginServerInterface):
-    plugin_server.save_config_simple(data_manager.get_data(), "data.json")
+    plugin_server.save_config_simple(data_manager.get_simple_tp_data(), "data.json")
