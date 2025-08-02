@@ -26,6 +26,17 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
     simple_tp_data = plugin_server.load_config_simple(
         "data.json", target_class=SimpleTPData
     )
+    # 转换旧版配置
+    need_update = False
+    for dim in config.worlds:
+        if dim not in simple_tp_data.dimension_str2sid:
+            simple_tp_data.dimension_str2sid[dim] = (
+                max(simple_tp_data.dimension_str2sid.values(), default=-1) + 1
+            )
+            need_update = True
+    if need_update:
+        plugin_server.save_config_simple(simple_tp_data, "data.json")
+
     data_manager = DataManager(simple_tp_data)
     plugin_server.logger.debug(f"SimpleTP plugin loaded with config: {config}")
 
@@ -267,7 +278,9 @@ def teleport_to_waypoint(
             )
         return
 
-    cur_position = get_player_position(player, plugin_server, config.worlds)
+    cur_position = get_player_position(
+        player, plugin_server, data_manager.dimension_str2sid, config.extra_dimensions
+    )
     if cur_position is None:
         source.reply(
             mcdr.RText(
@@ -290,11 +303,11 @@ def teleport_to_waypoint(
 
     position = waypoint_dict[waypoint_name]
     plugin_server.execute(
-        f"execute in {config.worlds[position.dimension]} run tp {player} {position.x} {position.y} {position.z}"
+        f"execute in {data_manager.dimension_sid2str[position.dimension]} run tp {player} {position.x} {position.y} {position.z}"
     )
     source.reply(
         mcdr.RText(
-            f"Teleporting to waypoint '{waypoint_name}': {config.worlds[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
+            f"Teleporting to waypoint '{waypoint_name}': {data_manager.dimension_sid2str[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
             color=constants.SUCCESS_COLOR,
         )
     )
@@ -331,7 +344,9 @@ def set_waypoint(
         return
 
     player = source.player
-    position = get_player_position(player, plugin_server, config.worlds)
+    position = get_player_position(
+        player, plugin_server, data_manager.dimension_str2sid, config.extra_dimensions
+    )
     if position is None:
         source.reply(
             mcdr.RText(
@@ -349,7 +364,7 @@ def set_waypoint(
         old_position = waypoint_dict[waypoint_name]
         source.reply(
             mcdr.RText(
-                f"Waypoint '{waypoint_name}': {config.worlds[old_position.dimension]}({old_position.x:.2f}, {old_position.y:.2f}, {old_position.z:.2f}) already exists, and will be overwritten.",
+                f"Waypoint '{waypoint_name}': {data_manager.dimension_sid2str[old_position.dimension]}({old_position.x:.2f}, {old_position.y:.2f}, {old_position.z:.2f}) already exists, and will be overwritten.",
                 color=constants.WARNING_COLOR,
             )
         )
@@ -360,7 +375,7 @@ def set_waypoint(
         data_manager.set_personal_waypoints(player, waypoint_dict)
     source.reply(
         mcdr.RText(
-            f"Waypoint '{waypoint_name}' successfully set to your current position: {config.worlds[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
+            f"Waypoint '{waypoint_name}' successfully set to your current position: {data_manager.dimension_sid2str[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
             color=constants.SUCCESS_COLOR,
         )
     )
@@ -392,7 +407,7 @@ def get_waypoints_messages(
                 continue
 
             rtext = mcdr.RText(name, color=get_dim_color(pos.dimension)) + mcdr.RText(
-                f": {config.worlds[pos.dimension]}({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})",
+                f": {data_manager.dimension_sid2str[pos.dimension]}({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})",
                 color=mcdr.RColor.gray,
             )
 
@@ -427,7 +442,7 @@ def get_waypoints_messages(
             )
         for name, pos in waypoints.items():
             rtext = mcdr.RText(name, color=get_dim_color(pos.dimension)) + mcdr.RText(
-                f": {config.worlds[pos.dimension]}({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})",
+                f": {data_manager.dimension_sid2str[pos.dimension]}({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})",
                 color=mcdr.RColor.gray,
             )
             if source.is_player:
@@ -456,7 +471,9 @@ def save_data_task():
 
 @mcdr.new_thread("on_player_death")
 def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str, _):
-    death_position = get_player_position(player, server, config.worlds)
+    death_position = get_player_position(
+        player, server, data_manager.dimension_str2sid, config.extra_dimensions
+    )
     if death_position is None:
         server.tell(
             player,

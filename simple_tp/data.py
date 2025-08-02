@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 from readerwriterlock.rwlock import RWLockFair
 
 import mcdreforged.api.all as mcdr
@@ -9,6 +9,7 @@ from simple_tp.utils import CoordWithDimension
 class SimpleTPData(mcdr.Serializable):
     personal_waypoints: Dict[str, Dict[str, List[Union[float, int]]]] = {}
     global_waypoints: Dict[str, List[Union[float, int]]] = {}
+    dimension_str2sid: Dict[str, int] = {}
 
 
 class DataManager:
@@ -33,6 +34,8 @@ class DataManager:
                 )
                 for name, coords in waypoints.items()
             }
+        self.dimension_str2sid = data.dimension_str2sid
+        self.dimension_sid2str = {v: k for k, v in self.dimension_str2sid.items()}
         self._global_rwlock = RWLockFair()
         self._personal_rwlock: Dict[str, RWLockFair] = {}
         self._personal_locks_rwlock = RWLockFair()
@@ -93,4 +96,5 @@ class DataManager:
                 }
                 for player, waypoints in self._personal_waypoints.items()
             }
+        data.dimension_str2sid = self.dimension_str2sid
         return data

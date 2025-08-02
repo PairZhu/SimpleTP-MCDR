@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, List, Union, Iterable, Literal, Callable
+from typing import NamedTuple, Optional, List, Union, Iterable, Literal, Callable, Dict
 import threading
 
 import mcdreforged.api.all as mcdr
@@ -42,7 +42,10 @@ class LoopManager:
 
 
 def get_player_position(
-    player: str, server: mcdr.PluginServerInterface, worlds: List[str]
+    player: str,
+    server: mcdr.PluginServerInterface,
+    dim2sid: Dict[str, int],
+    extra_dims: Dict[int, str] = {},
 ) -> Optional[CoordWithDimension]:
     try:
         coord = api.get_player_coordinate(player)
@@ -51,13 +54,19 @@ def get_player_position(
         server.logger.error(f"Error getting position for player {player}: {e}")
         return None
     if type(dimension) is int:
-        dimension = constants.DIM_ID2STR.get(dimension)
-    if dimension not in worlds:
+        dimension = constants.DIM_ID2STR.get(dimension, extra_dims.get(dimension))
+        if dimension is None:
+            server.logger.warning(
+                f"Player {player} is in an unknown dimension with ID {dimension}"
+            )
+            return None
+
+    if dimension not in dim2sid:
         server.logger.warning(
             f"Player {player} is in a dimension not enabled in config: {dimension}"
         )
         return None
-    dim_id = worlds.index(dimension)
+    dim_id = dim2sid[dimension]
     return CoordWithDimension(coord.x, coord.y, coord.z, dim_id)
 
 

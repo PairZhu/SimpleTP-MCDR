@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 import mcdreforged.api.all as mcdr
 
@@ -26,3 +26,5 @@ class Config(mcdr.Serializable):
         "minecraft:the_nether",
         "minecraft:the_end",
     ]
+
+    extra_dimensions: Dict[int, str] = {}
