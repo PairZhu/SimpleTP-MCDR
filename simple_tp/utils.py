@@ -1,4 +1,5 @@
-from typing import NamedTuple, Optional, List, Union, Iterable, Literal
+from typing import NamedTuple, Optional, List, Union, Iterable, Literal, Callable
+import threading
 
 import mcdreforged.api.all as mcdr
 
@@ -12,6 +13,32 @@ class CoordWithDimension(NamedTuple):
     y: float
     z: float
     dimension: int
+
+
+class LoopManager:
+    def __init__(self, run_function: Callable, interval: int):
+        self.run_function = run_function
+        self.interval = interval
+        self._stop_event = threading.Event()
+        self.thread = None
+
+    def start(self):
+        def loop():
+            while not self._stop_event.wait(self.interval):
+                self.run_function()
+
+        # If a thread is already running, stop it before starting a new one
+        if self.thread is not None and self.thread.is_alive():
+            self.stop()
+        self.thread = threading.Thread(target=loop, daemon=True)
+        self.thread.start()
+
+    def stop(self):
+        if self.thread is not None:
+            self._stop_event.set()
+            self.thread.join()
+            self.thread = None
+            self._stop_event.clear()
 
 
 def get_player_position(

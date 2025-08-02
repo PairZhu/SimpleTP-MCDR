@@ -3,7 +3,12 @@ from typing import List, Literal
 import mcdreforged.api.all as mcdr
 
 import simple_tp.constants as constants
-from simple_tp.utils import CoordWithDimension, get_player_position, get_command_button
+from simple_tp.utils import (
+    CoordWithDimension,
+    get_player_position,
+    get_command_button,
+    LoopManager,
+)
 from simple_tp.data import SimpleTPData, DataManager
 from simple_tp.config import Config
 
@@ -11,10 +16,11 @@ from simple_tp.config import Config
 data_manager: DataManager
 plugin_server: mcdr.PluginServerInterface
 config: Config
+save_loop_manager: LoopManager
 
 
 def on_load(server: mcdr.PluginServerInterface, prev_module: any):
-    global config, data_manager, plugin_server
+    global config, data_manager, plugin_server, save_loop_manager
     plugin_server = server
     config = plugin_server.load_config_simple("config.json", target_class=Config)
     simple_tp_data = plugin_server.load_config_simple(
@@ -25,6 +31,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
 
     if config.back_on_death:
         plugin_server.register_event_listener("PlayerDeathEvent", on_player_death)
+
+    save_loop_manager = LoopManager(save_data_task, config.save_interval)
+    save_loop_manager.start()
 
     plugin_server.register_command(
         mcdr.Literal(config.command_prefix)
@@ -146,27 +155,6 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
         )
     )
-
-
-@mcdr.new_thread("on_player_death")
-def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str, _):
-    death_position = get_player_position(player, server, config.worlds)
-    if death_position is None:
-        server.tell(
-            player,
-            mcdr.RText(
-                "Failed to retrieve your position. Please ask an admin to check the server logs.",
-                constants.ERROR_COLOR,
-            ),
-        )
-        return
-
-    personal_waypoints = data_manager.get_personal_waypoints(player)
-    personal_waypoints[constants.BACK_WAYPOINT_ID] = CoordWithDimension(
-        death_position.x, death_position.y, death_position.z, death_position.dimension
-    )
-    data_manager.set_personal_waypoints(player, personal_waypoints)
-
 
 @mcdr.new_thread("delete_waypoint")
 def delete_waypoint(
@@ -461,5 +449,32 @@ def get_waypoints_messages(
     return mcdr.RTextBase.join("\n", replyTextLines)
 
 
+def save_data_task():
+    plugin_server.logger.debug("Performing scheduled save of SimpleTP data.")
+    plugin_server.save_config_simple(data_manager.get_simple_tp_data(), "data.json")
+
+
+@mcdr.new_thread("on_player_death")
+def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str, _):
+    death_position = get_player_position(player, server, config.worlds)
+    if death_position is None:
+        server.tell(
+            player,
+            mcdr.RText(
+                "Failed to retrieve your position. Please ask an admin to check the server logs.",
+                constants.ERROR_COLOR,
+            ),
+        )
+        return
+
+    personal_waypoints = data_manager.get_personal_waypoints(player)
+    personal_waypoints[constants.BACK_WAYPOINT_ID] = CoordWithDimension(
+        death_position.x, death_position.y, death_position.z, death_position.dimension
+    )
+    data_manager.set_personal_waypoints(player, personal_waypoints)
+
+
 def on_unload(server: mcdr.PluginServerInterface):
+    save_loop_manager.stop()
+    plugin_server.logger.info("Saving SimpleTP data on unload.")
     plugin_server.save_config_simple(data_manager.get_simple_tp_data(), "data.json")
