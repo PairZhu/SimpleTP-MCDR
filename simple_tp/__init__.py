@@ -183,9 +183,6 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         .then(
             mcdr.Literal("tpp")
             .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
-            .precondition(
-                lambda src: src.has_permission(config.permissions.personal_waypoint)
-            )
             .then(
                 mcdr.Text("waypoint_name")
                 .suggests(
@@ -201,9 +198,6 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         .then(
             mcdr.Literal("tpg")
             .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
-            .precondition(
-                lambda src: src.has_permission(config.permissions.global_waypoint)
-            )
             .then(
                 mcdr.Text("waypoint_name")
                 .suggests(lambda: data_manager.get_global_waypoints().keys())
