@@ -372,6 +372,15 @@ def set_waypoint(
         )
         return
 
+    if data_manager.dimension_sid2str[position.dimension] not in config.worlds:
+        source.reply(
+            mcdr.RText(
+                "You are in a dimension not enabled in the config.",
+                color=constants.ERROR_COLOR,
+            )
+        )
+        return
+
     if is_global:
         waypoint_dict = data_manager.get_global_waypoints()
     else:
@@ -394,6 +403,13 @@ def set_waypoint(
             f"Waypoint '{waypoint_name}' successfully set to your current position: {data_manager.dimension_sid2str[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
             color=constants.SUCCESS_COLOR,
         )
+        + "\n Use"
+        + get_command_button(
+            config.command_prefix + " back",
+            config.command_prefix + " back",
+            hover_text="Click to teleport back",
+        )
+        + " to teleport back to the previous position."
     )
 
 
@@ -494,7 +510,17 @@ def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str,
         server.tell(
             player,
             mcdr.RText(
-                "Failed to retrieve your position. Please ask an admin to check the server logs.",
+                "Failed to record your death position. Please ask an admin to check the server logs.",
+                constants.ERROR_COLOR,
+            ),
+        )
+        return
+
+    if death_position.dimension not in data_manager.dimension_sid2str:
+        server.tell(
+            player,
+            mcdr.RText(
+                "Your death position is in an unsupported dimension.",
                 constants.ERROR_COLOR,
             ),
         )
@@ -505,6 +531,20 @@ def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str,
         death_position.x, death_position.y, death_position.z, death_position.dimension
     )
     data_manager.set_personal_waypoints(player, personal_waypoints)
+    server.tell(
+        player,
+        mcdr.RText(
+            "Your death position has been recorded successfully",
+            color=constants.SUCCESS_COLOR,
+        )
+        + "\n Use"
+        + get_command_button(
+            config.command_prefix + " back",
+            config.command_prefix + " back",
+            hover_text="Click to teleport back to your death position",
+        )
+        + " to teleport back to your death position.",
+    )
 
 
 def on_unload(server: mcdr.PluginServerInterface):
