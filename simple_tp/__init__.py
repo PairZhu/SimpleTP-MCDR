@@ -321,12 +321,20 @@ def teleport_to_waypoint(
     plugin_server.execute(
         f"execute in {data_manager.dimension_sid2str[position.dimension]} run tp {player} {position.x} {position.y} {position.z}"
     )
-    source.reply(
-        mcdr.RText(
-            f"Teleporting to waypoint '{waypoint_name}': {data_manager.dimension_sid2str[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
-            color=constants.SUCCESS_COLOR,
+    if waypoint_name != constants.BACK_WAYPOINT_ID:
+        source.reply(
+            mcdr.RText(
+                f"Teleporting to waypoint '{waypoint_name}': {data_manager.dimension_sid2str[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
+                color=constants.SUCCESS_COLOR,
+            )
         )
-    )
+    else:
+        source.reply(
+            mcdr.RText(
+                "Teleporting back to previous position",
+                color=constants.SUCCESS_COLOR,
+            )
+        )
 
     if is_global:
         personal_waypoints = data_manager.get_personal_waypoints(player)
@@ -334,6 +342,15 @@ def teleport_to_waypoint(
         personal_waypoints = waypoint_dict
     personal_waypoints[constants.BACK_WAYPOINT_ID] = cur_position
     data_manager.set_personal_waypoints(player, personal_waypoints)
+    source.reply(
+        "Use "
+        + get_command_button(
+            config.command_prefix + " back",
+            config.command_prefix + " back",
+            hover_text="Click to teleport back",
+        )
+        + " to teleport back to the previous position."
+    )
 
 
 @mcdr.new_thread("create_waypoint")
@@ -403,13 +420,6 @@ def set_waypoint(
             f"Waypoint '{waypoint_name}' successfully set to your current position: {data_manager.dimension_sid2str[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
             color=constants.SUCCESS_COLOR,
         )
-        + "\n Use"
-        + get_command_button(
-            config.command_prefix + " back",
-            config.command_prefix + " back",
-            hover_text="Click to teleport back",
-        )
-        + " to teleport back to the previous position."
     )
 
 
@@ -537,7 +547,7 @@ def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str,
             "Your death position has been recorded successfully",
             color=constants.SUCCESS_COLOR,
         )
-        + "\n Use"
+        + "\n Use "
         + get_command_button(
             config.command_prefix + " back",
             config.command_prefix + " back",
