@@ -4,8 +4,9 @@
 A simple teleport plugin aiming to match and extend EssentialsX teleport features.
 
 ## Preview
-![Teleport Button](image/README/1754023706691.png)
+![Teleport Button](image/README/1754197051138.png)
 ![Delete Button](image/README/1754125441339.png)
+![Death Return](image/README/1754197144539.png)
 
 ## Features and Commands
 The following examples use the default prefix "!!stp". Adjust according to your configuration file.
