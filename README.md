@@ -8,18 +8,23 @@ A simple teleport plugin aiming to match and extend EssentialsX teleport feature
 ![Delete Button](image/README/1754125441339.png)
 ![Death Return](image/README/1754197144539.png)
 
-## Features and Commands
+## Features
+- Support for personal waypoints that players can create and manage, visible only to themselves
+- Support for global waypoints (public waypoints) visible to all players, suitable for public areas
+- Configurable enabled dimensions with support for modded dimensions (like Twilight Forest, Eternal Starlight, etc.)
+- Support for returning to death location and previous location before teleporting
+- Support for clickable waypoint operations for convenience
+
+## Commands
 The following examples use the default prefix "!!stp". Adjust according to your configuration file.
 
 ### Personal Waypoints
-Players can create and manage their own waypoints, which are only visible to themselves.
 - **Create Personal Waypoint**: `!!stp setp <name>`
 - **Teleport to Personal Waypoint**: `!!stp tpp <name>`
 - **Delete Personal Waypoint**: `!!stp delp <name>`
 - **List All Personal Waypoints** (clickable for teleport): `!!stp listp`
 
 ### Global Waypoints (Public Waypoints)
-Global waypoints are visible to all players and suitable for public areas.
 - **Create Global Waypoint**: `!!stp setg <name>`
 - **Teleport to Global Waypoint**: `!!stp tpg <name>`
 - **Delete Global Waypoint**: `!!stp delg <name>`
