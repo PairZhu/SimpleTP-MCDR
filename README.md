@@ -1,7 +1,7 @@
 # SimpleTP
 **English** | [简体中文](README.zh.md)
 
-A simple teleport plugin aiming to match and extend EssentialsX teleport features.
+A simple teleportation plugin designed to create waypoints and implement the teleportation features of EssentialsX.
 
 ## Preview
 ![Teleport Button](image/README/1754197051138.png)

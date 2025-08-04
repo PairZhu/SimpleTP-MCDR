@@ -1,7 +1,7 @@
 # SimpleTP
 [English](README.md) | **简体中文**
 
-一个简单的传送插件，旨在实现和扩展EssentialsX的传送功能。
+一个简单的传送插件，用于创建传送点并实现EssentialsX的传送功能。
 
 ## 预览
 ![传送按钮](image/README/1754197051138.png)
