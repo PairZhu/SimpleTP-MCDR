@@ -7,6 +7,7 @@ BACK_WAYPOINT_ID = "__back__"
 SUCCESS_COLOR = RColor.green
 WARNING_COLOR = RColor.yellow
 ERROR_COLOR = RColor.red
+TIP_COLOR = RColor.light_purple
 
 DIM_ID2STR = {
     0: "minecraft:overworld",

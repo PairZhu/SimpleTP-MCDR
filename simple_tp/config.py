@@ -14,7 +14,6 @@ class Config(mcdr.Serializable):
         tpahere: int = 1
         tp: int = 2
         tphere: int = 2
-        tp_xyz: int = 2
         personal_waypoint: int = 1
         global_waypoint: int = 2
         cross_world_tp: int = 1
