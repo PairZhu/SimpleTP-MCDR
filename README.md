@@ -7,28 +7,39 @@ A simple teleportation plugin designed to create waypoints and implement the tel
 ![Teleport Button](image/README/1754197051138.png)
 ![Delete Button](image/README/1754125441339.png)
 ![Death Return](image/README/1754197144539.png)
+![Teleport Request](image/README/1754733917600.png)
+![Teleport Deal](image/README/1754733952187.png)
 
 ## Features
 - Support for personal waypoints that players can create and manage, visible only to themselves
 - Support for global waypoints (public waypoints) visible to all players, suitable for public areas
 - Configurable enabled dimensions with support for modded dimensions (like Twilight Forest, Eternal Starlight, etc.)
 - Support for returning to death location and previous location before teleporting
-- Support for clickable waypoint operations for convenience
+- Most commands support clickable operations for convenience
 
 ## Commands
 The following examples use the default prefix "!!stp". Adjust according to your configuration file.
 
 ### Personal Waypoints
-- **Create Personal Waypoint**: `!!stp setp <name>`
+- **Create Personal Waypoint at Current Location**: `!!stp setp <name>`
 - **Teleport to Personal Waypoint**: `!!stp tpp <name>`
 - **Delete Personal Waypoint**: `!!stp delp <name>`
-- **List All Personal Waypoints** (clickable for teleport): `!!stp listp`
+- **List All Personal Waypoints**: `!!stp listp`
 
 ### Global Waypoints (Public Waypoints)
-- **Create Global Waypoint**: `!!stp setg <name>`
+- **Create Global Waypoint at Current Location**: `!!stp setg <name>`
 - **Teleport to Global Waypoint**: `!!stp tpg <name>`
 - **Delete Global Waypoint**: `!!stp delg <name>`
-- **List All Global Waypoints** (clickable for teleport): `!!stp listg`
+- **List All Global Waypoints**: `!!stp listg`
+
+### TP Commands
+- **Teleport to Player**: `!!stp tp <player>`
+- **Teleport Player to Self**: `!!stp tphere <player>`
+- **Request Teleport to Player**: `!!stp tpa <player>`
+- **Request Player to Teleport to Self**: `!!stp tpahere <player>`
+- **Cancel Teleport Request**: `!!stp cancel`
+- **Accept Teleport Request**: `!!stp accept <player?>`
+- **Deny Teleport Request**: `!!stp deny <player?>`
 
 ### Other Commands
 - **List All Waypoints** (personal and global): `!!stp list`
@@ -49,7 +60,6 @@ The configuration file is located at `config/SimpleTP/config.json`
 - **tpahere**: Permission to use `!!stp tpahere` command
 - **tp**: Permission to use `!!stp tp <player>` command
 - **tphere**: Permission to use `!!stp tphere <player>` command
-- **tp_xyz**: Permission to use `!!stp tp <x> <y> <z>` command
 - **personal_waypoint**: Permission to set/delete personal waypoint related commands
 - **global_waypoint**: Permission to set/delete global waypoint related commands
 - **cross_world_tp**: Permission for cross-dimension teleportation
@@ -69,14 +79,15 @@ The configuration file is located at `config/SimpleTP/config.json`
     This error may occur when the server Minecraft version is before 1.16 and mod dimensions are installed. Check the `extra_dimensions` configuration in `config/SimpleTP/config.json` to ensure the dimension is included. You can get the dimension ID using the `/data get entity <player> Dimension` command.
 
 ## TODO
+If you have more feature requests or are interested in any planned features, feel free to raise them in the issues section 🚀
 Sorted by priority:
 - [x] Support clickable waypoints
 - [x] `back` command supports round-trip teleportation
 - [x] Record player's dimension in waypoints (Nether, Overworld, End)
 - [x] Configuration for cross-dimension teleportation
 - [x] Scheduled saving of waypoint data (to prevent loss on crash)
-- [ ] `tp`/`tphere` functionality
-- [ ] `tpa`/`tpahere` functionality
+- [x] `tp`/`tphere` functionality
+- [x] `tpa`/`tpahere` functionality
 - [ ] Add help information
 - [ ] Record player's orientation in waypoints
 - [ ] Add description information for waypoints
@@ -86,4 +97,3 @@ Sorted by priority:
 - [ ] Waypoint safety check, prompting confirmation or teleporting to nearby safe location if the waypoint is in a dangerous position
 - [ ] Teleport cost configuration (consume custom items or experience) (base cost + distance cost)
 - [ ] Multi-language support
-- [ ] More feature requests can be submitted in issues🚀
