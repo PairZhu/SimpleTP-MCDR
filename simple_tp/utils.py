@@ -43,6 +43,7 @@ class LoopManager:
             self.thread = None
             self._stop_event.clear()
 
+
 def get_player_list() -> Optional[List[str]]:
     try:
         return api.get_server_player_list().players
@@ -106,7 +107,7 @@ def get_command_button(
     hover_text: Optional[str] = None,
     color: mcdr.RColor = mcdr.RColor.aqua,
     styles: Union[mcdr.RStyle, Iterable[mcdr.RStyle]] = (mcdr.RStyle.underlined,),
-    type: Literal["suggest", "run"] = "run",
+    type: Literal["suggest", "run"] = "suggest",
 ) -> mcdr.RText:
     if hover_text is None:
         hover_text = command

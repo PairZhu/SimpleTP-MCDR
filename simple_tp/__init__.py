@@ -221,7 +221,6 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
                     plugin_config.permissions.global_waypoint
                 )
             )
-            .runs(lambda src: src.reply(get_waypoints_messages(src, scope="global")))
         )
         .then(
             mcdr.Literal("back")
@@ -360,15 +359,15 @@ def teleport_to_coord(
     if record_back:
         plugin_server.tell(
             player,
-            mcdr.RText("Use ", color=constants.TIP_COLOR)
+            mcdr.RText(
+                f"Your previous position {cur_position.x:.2f}, {cur_position.y:.2f}, {cur_position.z:.2f} in {data_manager.dimension_sid2str[cur_position.dimension]} has been recorded.",
+                color=constants.TIP_COLOR,
+            )
+            + "\t"
             + utils.get_command_button(
-                plugin_config.command_prefix + " back",
+                "[Back]",
                 plugin_config.command_prefix + " back",
                 hover_text="Click to teleport back to your previous position",
-            )
-            + mcdr.RText(
-                " to teleport back to your previous position.",
-                color=constants.TIP_COLOR,
             ),
         )
 
@@ -500,7 +499,7 @@ def tp_request(
                 f"You already have a pending teleport request to {prev_request.target_player}, please cancel it first.",
                 color=constants.ERROR_COLOR,
             )
-            + "  "
+            + "\t"
             + utils.get_command_button(
                 "[Cancel]",
                 f"{plugin_config.command_prefix} cancel",
@@ -513,7 +512,7 @@ def tp_request(
             f"Teleport request sent to {target_player}. Waiting for their response.",
             color=constants.TIP_COLOR,
         )
-        + "  "
+        + "\t"
         + utils.get_command_button(
             "[Cancel]",
             f"{plugin_config.command_prefix} cancel",
@@ -532,19 +531,18 @@ def tp_request(
                 color=constants.TIP_COLOR,
             )
         )
-        + mcdr.RText("\nUse ", color=constants.TIP_COLOR)
+        + "\t"
         + utils.get_command_button(
-            plugin_config.command_prefix + " accept " + source.player,
-            plugin_config.command_prefix + " accept " + source.player,
+            "[Accept]",
+            f"{plugin_config.command_prefix} accept {source.player}",
             hover_text="Click to accept the teleport request",
         )
-        + mcdr.RText(" to accept the request, or ", color=constants.TIP_COLOR)
+        + " "
         + utils.get_command_button(
-            plugin_config.command_prefix + " deny " + source.player,
-            plugin_config.command_prefix + " deny " + source.player,
+            "[Deny]",
+            f"{plugin_config.command_prefix} deny {source.player}",
             hover_text="Click to deny the teleport request",
-        )
-        + mcdr.RText(" to deny it.", color=constants.TIP_COLOR),
+        ),
     )
 
 
@@ -892,7 +890,7 @@ def get_waypoints_messages(
 
             if source.is_player:
                 rtext += (
-                    "  "
+                    "\t"
                     + utils.get_command_button(
                         "[TP]",
                         f"{plugin_config.command_prefix} tpp {name}",
@@ -903,7 +901,6 @@ def get_waypoints_messages(
                         "[DEL]",
                         f"{plugin_config.command_prefix} delp {name}",
                         hover_text="Click to input the delete command",
-                        type="suggest",
                         color=mcdr.RColor.red,
                     )
                 )
@@ -925,7 +922,7 @@ def get_waypoints_messages(
                 color=mcdr.RColor.gray,
             )
             if source.is_player:
-                rtext += "  " + utils.get_command_button(
+                rtext += "\t" + utils.get_command_button(
                     "[TP]",
                     f"{plugin_config.command_prefix} tpg {name}",
                     hover_text="Click to teleport to this waypoint",
@@ -935,7 +932,6 @@ def get_waypoints_messages(
                         "[DEL]",
                         f"{plugin_config.command_prefix} delg {name}",
                         hover_text="Click to input the delete command",
-                        type="suggest",
                         color=mcdr.RColor.red,
                     )
             replyTextLines.append(rtext)
@@ -974,17 +970,14 @@ def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str,
     server.tell(
         player,
         mcdr.RText(
-            "Your death position has been recorded successfully",
-            color=constants.SUCCESS_COLOR,
+            "Your death position has been recorded",
+            color=constants.TIP_COLOR,
         )
-        + mcdr.RText("\nUse ", color=constants.TIP_COLOR)
+        + "\t"
         + utils.get_command_button(
-            plugin_config.command_prefix + " back",
+            "[Back]",
             plugin_config.command_prefix + " back",
             hover_text="Click to teleport back to your death position",
-        )
-        + mcdr.RText(
-            " to teleport back to your death position.", color=constants.TIP_COLOR
         ),
     )
 
