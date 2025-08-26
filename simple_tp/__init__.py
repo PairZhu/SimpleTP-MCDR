@@ -390,7 +390,7 @@ def teleport_to_coord(
                 f"Your previous position {cur_position.x:.2f}, {cur_position.y:.2f}, {cur_position.z:.2f} in {data_manager.dimension_sid2str[cur_position.dimension]} has been recorded.",
                 color=constants.TIP_COLOR,
             )
-            + "\t"
+            + "  "
             + utils.get_command_button(
                 "[Back]",
                 plugin_config.command_prefix + " back",
@@ -526,7 +526,7 @@ def tp_request(
                 f"You already have a pending teleport request to {prev_request.target_player}, please cancel it first.",
                 color=constants.ERROR_COLOR,
             )
-            + "\t"
+            + "  "
             + utils.get_command_button(
                 "[Cancel]",
                 f"{plugin_config.command_prefix} cancel",
@@ -539,7 +539,7 @@ def tp_request(
             f"Teleport request sent to {target_player}. Waiting for their response.",
             color=constants.TIP_COLOR,
         )
-        + "\t"
+        + "  "
         + utils.get_command_button(
             "[Cancel]",
             f"{plugin_config.command_prefix} cancel",
@@ -558,7 +558,7 @@ def tp_request(
                 color=constants.TIP_COLOR,
             )
         )
-        + "\t"
+        + "  "
         + utils.get_command_button(
             "[Accept]",
             f"{plugin_config.command_prefix} accept {source.player}",
@@ -926,7 +926,7 @@ def get_waypoints_messages(
 
             if source.is_player:
                 rtext += (
-                    "\t"
+                    "  "
                     + utils.get_command_button(
                         "[TP]",
                         f"{plugin_config.command_prefix} tpp {name}",
@@ -958,7 +958,7 @@ def get_waypoints_messages(
                 color=mcdr.RColor.gray,
             )
             if source.is_player:
-                rtext += "\t" + utils.get_command_button(
+                rtext += "  " + utils.get_command_button(
                     "[TP]",
                     f"{plugin_config.command_prefix} tpg {name}",
                     hover_text="Click to teleport to this waypoint",
@@ -1009,7 +1009,7 @@ def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str,
             "Your death position has been recorded",
             color=constants.TIP_COLOR,
         )
-        + "\t"
+        + "  "
         + utils.get_command_button(
             "[Back]",
             plugin_config.command_prefix + " back",
