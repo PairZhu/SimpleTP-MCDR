@@ -1,3 +1,4 @@
+import json
 from typing import List, Literal, Optional, Dict
 from dataclasses import dataclass
 import threading
@@ -70,6 +71,7 @@ plugin_server: mcdr.PluginServerInterface
 plugin_config: Config
 save_loop: utils.LoopManager
 teleport_request_manager: TeleportRequestManager
+prev_data_str: str
 
 
 def on_load(server: mcdr.PluginServerInterface, prev_module: any):
@@ -78,7 +80,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         data_manager, \
         plugin_server, \
         save_loop, \
-        teleport_request_manager
+        teleport_request_manager, \
+        prev_data_str
+
     plugin_server = server
     plugin_config = plugin_server.load_config_simple("config.json", target_class=Config)
     simple_tp_data = plugin_server.load_config_simple(
@@ -96,6 +100,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         plugin_server.save_config_simple(simple_tp_data, "data.json")
 
     data_manager = DataManager(simple_tp_data)
+    prev_data_str = json.dumps(
+        data_manager.get_simple_tp_data().serialize(), sort_keys=True
+    )
     plugin_server.logger.debug(f"SimpleTP plugin loaded with config: {plugin_config}")
 
     if plugin_config.back_on_death:
@@ -1012,11 +1019,20 @@ def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str,
 
 
 def save_data_task():
+    global prev_data_str
+    cur_data = data_manager.get_simple_tp_data()
+    cur_data_str = json.dumps(cur_data.serialize(), sort_keys=True)
+    if cur_data_str == prev_data_str:
+        plugin_server.logger.debug(
+            "No changes detected in SimpleTP data, skipping save."
+        )
+        return
     plugin_server.logger.debug("Performing scheduled save of SimpleTP data.")
-    plugin_server.save_config_simple(data_manager.get_simple_tp_data(), "data.json")
+    plugin_server.save_config_simple(cur_data, "data.json")
+    prev_data_str = cur_data_str
 
 
 def on_unload(server: mcdr.PluginServerInterface):
     save_loop.stop()
     plugin_server.logger.info("Saving SimpleTP data on unload.")
-    plugin_server.save_config_simple(data_manager.get_simple_tp_data(), "data.json")
+    save_data_task()
