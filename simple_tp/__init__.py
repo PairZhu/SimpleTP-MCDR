@@ -123,6 +123,18 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
                     )
                 )
             )
+            .then(
+                mcdr.Literal("-f").then(
+                    mcdr.Text("waypoint_name").runs(
+                        lambda src, ctx: set_waypoint(
+                            src,
+                            ctx.get("waypoint_name"),
+                            is_global=False,
+                            overwrite=True,
+                        )
+                    )
+                )
+            )
         )
         .then(
             mcdr.Literal("setg")
@@ -136,6 +148,18 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
                 mcdr.Text("waypoint_name").runs(
                     lambda src, ctx: set_waypoint(
                         src, ctx.get("waypoint_name"), is_global=True
+                    )
+                )
+            )
+            .then(
+                mcdr.Literal("-f").then(
+                    mcdr.Text("waypoint_name").runs(
+                        lambda src, ctx: set_waypoint(
+                            src,
+                            ctx.get("waypoint_name"),
+                            is_global=True,
+                            overwrite=True,
+                        )
                     )
                 )
             )
@@ -768,6 +792,7 @@ def set_waypoint(
     source: mcdr.PlayerCommandSource,
     waypoint_name: str,
     is_global: bool,
+    overwrite: bool = False,
 ):
     if not waypoint_name:
         source.reply(
@@ -812,6 +837,14 @@ def set_waypoint(
         waypoint_dict = data_manager.get_personal_waypoints(player)
     if waypoint_name in waypoint_dict:
         old_position = waypoint_dict[waypoint_name]
+        if not overwrite:
+            source.reply(
+                mcdr.RText(
+                    f"Waypoint '{waypoint_name}': {data_manager.dimension_sid2str[old_position.dimension]}({old_position.x:.2f}, {old_position.y:.2f}, {old_position.z:.2f}) already exists. Use the command with -f to overwrite it.",
+                    color=constants.ERROR_COLOR,
+                )
+            )
+            return
         source.reply(
             mcdr.RText(
                 f"Waypoint '{waypoint_name}': {data_manager.dimension_sid2str[old_position.dimension]}({old_position.x:.2f}, {old_position.y:.2f}, {old_position.z:.2f}) already exists, and will be overwritten.",

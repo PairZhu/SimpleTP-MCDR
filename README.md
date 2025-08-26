@@ -21,13 +21,13 @@ A simple teleportation plugin designed to create waypoints and implement the tel
 The following examples use the default prefix "!!stp". Adjust according to your configuration file.
 
 ### Personal Waypoints
-- **Create Personal Waypoint at Current Location**: `!!stp setp <name>`
+- **Create Personal Waypoint at Current Location**: `!!stp setp (-f?) <name>`, where `-f` indicates to force overwrite an existing waypoint with the same name
 - **Teleport to Personal Waypoint**: `!!stp tpp <name>`
 - **Delete Personal Waypoint**: `!!stp delp <name>`
 - **List All Personal Waypoints**: `!!stp listp`
 
 ### Global Waypoints (Public Waypoints)
-- **Create Global Waypoint at Current Location**: `!!stp setg <name>`
+- **Create Global Waypoint at Current Location**: `!!stp setg (-f?) <name>`, where `-f` indicates to force overwrite an existing waypoint with the same name
 - **Teleport to Global Waypoint**: `!!stp tpg <name>`
 - **Delete Global Waypoint**: `!!stp delg <name>`
 - **List All Global Waypoints**: `!!stp listg`
