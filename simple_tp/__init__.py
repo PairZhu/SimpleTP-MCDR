@@ -238,12 +238,8 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             .runs(lambda src: src.reply(get_waypoints_messages(src, scope="personal")))
         )
         .then(
-            mcdr.Literal("listg")
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
-            .precondition(
-                lambda src: src.has_permission(
-                    plugin_config.permissions.global_waypoint
-                )
+            mcdr.Literal("listg").runs(
+                lambda src: src.reply(get_waypoints_messages(src, scope="global"))
             )
         )
         .then(
