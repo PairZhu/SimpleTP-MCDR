@@ -1,4 +1,4 @@
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Union
 from readerwriterlock.rwlock import RWLockFair
 
 import mcdreforged.api.all as mcdr
