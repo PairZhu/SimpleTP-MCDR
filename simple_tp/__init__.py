@@ -116,7 +116,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
     plugin_server.register_command(
         mcdr.Literal(plugin_config.command_prefix)
         .then(
-            mcdr.Literal("setp")
+            mcdr.Literal(["setp", "setpersonal"])
             .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
             .precondition(
                 lambda src: src.has_permission(
@@ -144,7 +144,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
         )
         .then(
-            mcdr.Literal("setg")
+            mcdr.Literal(["setg", "setglobal"])
             .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
             .precondition(
                 lambda src: src.has_permission(
@@ -172,7 +172,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
         )
         .then(
-            mcdr.Literal("tpp")
+            mcdr.Literal(["tpp", "tppersonal"])
             .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
             .then(
                 mcdr.Text("waypoint_name")
@@ -187,7 +187,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
         )
         .then(
-            mcdr.Literal("tpg")
+            mcdr.Literal(["tpg", "tpglobal"])
             .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
             .then(
                 mcdr.Text("waypoint_name")
@@ -200,7 +200,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
         )
         .then(
-            mcdr.Literal("delp")
+            mcdr.Literal(["delp", "delpersonal"])
             .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
             .precondition(
                 lambda src: src.has_permission(
@@ -220,7 +220,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
         )
         .then(
-            mcdr.Literal("delg")
+            mcdr.Literal(["delg", "delglobal"])
             .precondition(
                 lambda src: src.has_permission(
                     plugin_config.permissions.global_waypoint
@@ -240,12 +240,12 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
         )
         .then(
-            mcdr.Literal("listp")
+            mcdr.Literal(["listp", "listpersonal"])
             .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
             .runs(lambda src: src.reply(get_waypoints_messages(src, scope="personal")))
         )
         .then(
-            mcdr.Literal("listg").runs(
+            mcdr.Literal(["listg", "listglobal"]).runs(
                 lambda src: src.reply(get_waypoints_messages(src, scope="global"))
             )
         )
