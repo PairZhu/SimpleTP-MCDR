@@ -9,9 +9,6 @@ class OnlinePlayerCounter:
     def __init__(self):
         self._players: Optional[Set[str]] = None
         self.lock = RWLockFair()
-        threading.Thread(
-            target=self.query_players, daemon=True, name="OnlinePlayersInitalize"
-        ).start()
 
     def query_players(self, rewrite: bool = False):
         try:
@@ -26,6 +23,14 @@ class OnlinePlayerCounter:
                 )
         except Exception as e:
             simple_tp.plugin_server.logger.error(f"Error getting player list: {e}")
+
+    def on_server_startup(self):
+        threading.Thread(
+            target=self.query_players,
+            kwargs={"rewrite": True},
+            daemon=True,
+            name="OnlinePlayersInit",
+        ).start()
 
     def get_player_list(self, try_query: bool = True) -> Optional[List[str]]:
         with self.lock.gen_rlock():

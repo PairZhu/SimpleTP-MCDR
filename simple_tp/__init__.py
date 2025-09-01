@@ -103,6 +103,8 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         plugin_server.save_config_simple(simple_tp_data, "data.json")
 
     online_player_counter = OnlinePlayerCounter()
+    if plugin_server.is_server_startup():
+        online_player_counter.on_server_startup()
 
     data_manager = DataManager(simple_tp_data)
     prev_data_str = json.dumps(
@@ -1112,3 +1114,7 @@ def on_player_joined(server: mcdr.PluginServerInterface, player: str, info: mcdr
 
 def on_player_left(server: mcdr.PluginServerInterface, player: str):
     online_player_counter.on_player_left(player)
+
+
+def on_server_startup(server: mcdr.PluginServerInterface):
+    online_player_counter.on_server_startup()
