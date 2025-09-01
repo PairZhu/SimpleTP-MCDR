@@ -121,6 +121,15 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
     def player_suggestion(src: mcdr.CommandSource) -> List[str]:
         return online_player_counter.get_player_list(try_query=False) or []
 
+    def get_all_names_suggestion(src: mcdr.CommandSource) -> List[str]:
+        suggestions = set()
+        if src.is_player:
+            assert isinstance(src, mcdr.PlayerCommandSource)
+            suggestions.update(data_manager.get_personal_waypoints(src.player).keys())
+        suggestions.update(data_manager.get_global_waypoints().keys())
+        suggestions.update(online_player_counter.get_player_list(try_query=False) or [])
+        return list(suggestions)
+
     plugin_server.register_command(
         mcdr.Literal(plugin_config.command_prefix)
         .then(
@@ -344,6 +353,13 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
                 )
             )
         )
+        .then(
+            mcdr.Text("name")
+            .precondition(lambda _: plugin_config.easy_tp)
+            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .suggests(get_all_names_suggestion)
+            .runs(lambda src, ctx: easy_tp(src, ctx.get("name")))
+        )
     )
 
 
@@ -409,6 +425,48 @@ def teleport_to_coord(
         )
 
     return True
+
+
+@mcdr.new_thread("easy_tp")
+def easy_tp(source: mcdr.PlayerCommandSource, name: str):
+    # 优先级：个人传送点 > 全局传送点 > 在线玩家（权限足够优先tp，否则tpa）
+    personal_waypoints = data_manager.get_personal_waypoints(source.player)
+    if name in personal_waypoints:
+        teleport_to_waypoint(source, name, is_global=False)
+        return
+    global_waypoints = data_manager.get_global_waypoints()
+    if name in global_waypoints:
+        teleport_to_waypoint(source, name, is_global=True)
+        return
+    player_list = online_player_counter.get_player_list()
+    if player_list is None:
+        source.reply(
+            mcdr.RText(
+                "Failed to retrieve the player list. Please ask an admin to check the server logs.",
+                color=constants.ERROR_COLOR,
+            )
+        )
+        return
+    target_player = utils.search_for_player(name, player_list or [])
+    if target_player is None:
+        source.reply(
+            mcdr.RText(
+                f"No matching waypoint or online player found for '{name}'.",
+                color=constants.ERROR_COLOR,
+            )
+        )
+        return
+    if source.has_permission(plugin_config.permissions.tp):
+        tp_to_player(source, target_player)
+        return
+    if source.has_permission(plugin_config.permissions.tpa):
+        tp_request(source, target_player)
+        return
+    source.reply(
+        mcdr.RText(
+            "You do not have permission to teleport or send teleport requests to players.",
+        )
+    )
 
 
 @mcdr.new_thread("deal_tp_request")

@@ -27,3 +27,4 @@ class Config(mcdr.Serializable):
     ]
 
     extra_dimensions: Dict[int, str] = {}
+    easy_tp: bool = True
