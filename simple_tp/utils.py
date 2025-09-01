@@ -4,7 +4,7 @@ from enum import Flag, auto
 
 import mcdreforged.api.all as mcdr
 
-import minecraft_data_api as api
+import minecraft_data_api as mc_data_api
 
 import simple_tp.constants as constants
 
@@ -44,19 +44,25 @@ class LoopManager:
             self._stop_event.clear()
 
 
-def get_player_list() -> Optional[List[str]]:
-    try:
-        return api.get_server_player_list().players
-    except Exception as e:
-        simple_tp.plugin_server.logger.error(f"Error getting player list: {e}")
+def search_for_player(
+    name: str, player_list: List[str], ignore_case: bool = True
+) -> Optional[str]:
+    if name in player_list:
+        return name
+    if not ignore_case:
         return None
+    lower_name = name.lower()
+    for player in player_list:
+        if player.lower() == lower_name:
+            return player
+    return None
 
 
 def get_player_dimension(
     player: str,
 ) -> Optional[str]:
     try:
-        dimension = api.get_player_info(player, "Dimension")
+        dimension = mc_data_api.get_player_info(player, "Dimension")
     except Exception as e:
         simple_tp.plugin_server.logger.error(
             f"Error getting dimension for player {player}: {e}"
@@ -79,7 +85,7 @@ def get_player_position(
     player: str,
 ) -> Optional[CoordWithDimension]:
     try:
-        coord = api.get_player_coordinate(player)
+        coord = mc_data_api.get_player_coordinate(player)
     except Exception as e:
         simple_tp.plugin_server.logger.error(
             f"Error getting position for player {player}: {e}"
@@ -179,18 +185,22 @@ def teleport_check(
         )
 
     if TpCheckFlags.ONLINE in check_flags:
-        player_list = get_player_list()
+        player_list = simple_tp.online_player_counter.get_player_list()
         if player_list is None:
             reply_error(
                 "Failed to retrieve the player list. Please ask an admin to check the server logs."
             )
             return False
-        if player not in player_list:
+        player = search_for_player(player, player_list)
+
+        if player is None:
             reply_error(f"Player {player} is not online.")
             return False
-        if target_player and target_player not in player_list:
-            reply_error(f"Player {target_player} is not online.")
-            return False
+        if target_player:
+            target_player = search_for_player(target_player, player_list)
+            if target_player is None:
+                reply_error(f"Player {target_player} is not online.")
+                return False
 
     if TpCheckFlags.WORLD in check_flags:
         player_dim = dim_getter(player)

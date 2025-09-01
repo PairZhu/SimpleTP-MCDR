@@ -11,6 +11,7 @@ import simple_tp.utils as utils
 
 from simple_tp.data import SimpleTPData, DataManager
 from simple_tp.config import Config
+from simple_tp.online_player import OnlinePlayerCounter
 
 
 @dataclass(frozen=True)
@@ -72,6 +73,7 @@ plugin_config: Config
 save_loop: utils.LoopManager
 teleport_request_manager: TeleportRequestManager
 prev_data_str: str
+online_player_counter: OnlinePlayerCounter
 
 
 def on_load(server: mcdr.PluginServerInterface, prev_module: any):
@@ -81,7 +83,8 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         plugin_server, \
         save_loop, \
         teleport_request_manager, \
-        prev_data_str
+        prev_data_str, \
+        online_player_counter
 
     plugin_server = server
     plugin_config = plugin_server.load_config_simple("config.json", target_class=Config)
@@ -99,6 +102,8 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
     if need_update:
         plugin_server.save_config_simple(simple_tp_data, "data.json")
 
+    online_player_counter = OnlinePlayerCounter()
+
     data_manager = DataManager(simple_tp_data)
     prev_data_str = json.dumps(
         data_manager.get_simple_tp_data().serialize(), sort_keys=True
@@ -112,6 +117,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
     save_loop.start()
 
     teleport_request_manager = TeleportRequestManager()
+
+    def player_suggestion(src: mcdr.CommandSource) -> List[str]:
+        return online_player_counter.get_player_list(try_query=False) or []
 
     plugin_server.register_command(
         mcdr.Literal(plugin_config.command_prefix)
@@ -264,9 +272,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
             .precondition(lambda src: src.has_permission(plugin_config.permissions.tp))
             .then(
-                mcdr.Text("target_player").runs(
-                    lambda src, ctx: tp_to_player(src, ctx.get("target_player"))
-                )
+                mcdr.Text("target_player")
+                .suggests(player_suggestion)
+                .runs(lambda src, ctx: tp_to_player(src, ctx.get("target_player")))
             )
         )
         .then(
@@ -276,9 +284,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
                 lambda src: src.has_permission(plugin_config.permissions.tphere)
             )
             .then(
-                mcdr.Text("target_player").runs(
-                    lambda src, ctx: tp_here(src, ctx.get("target_player"))
-                )
+                mcdr.Text("target_player")
+                .suggests(player_suggestion)
+                .runs(lambda src, ctx: tp_here(src, ctx.get("target_player")))
             )
         )
         .then(
@@ -286,9 +294,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
             .precondition(lambda src: src.has_permission(plugin_config.permissions.tpa))
             .then(
-                mcdr.Text("target_player").runs(
-                    lambda src, ctx: tp_request(src, ctx.get("target_player"))
-                )
+                mcdr.Text("target_player")
+                .suggests(player_suggestion)
+                .runs(lambda src, ctx: tp_request(src, ctx.get("target_player")))
             )
         )
         .then(
@@ -298,7 +306,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
                 lambda src: src.has_permission(plugin_config.permissions.tpahere)
             )
             .then(
-                mcdr.Text("target_player").runs(
+                mcdr.Text("target_player")
+                .suggests(player_suggestion)
+                .runs(
                     lambda src, ctx: tp_request(
                         src, ctx.get("target_player"), is_reversed=True
                     )
@@ -1036,3 +1046,11 @@ def on_unload(server: mcdr.PluginServerInterface):
     save_loop.stop()
     plugin_server.logger.info("Saving SimpleTP data on unload.")
     save_data_task()
+
+
+def on_player_joined(server: mcdr.PluginServerInterface, player: str, info: mcdr.Info):
+    online_player_counter.on_player_joined(player)
+
+
+def on_player_left(server: mcdr.PluginServerInterface, player: str):
+    online_player_counter.on_player_left(player)
