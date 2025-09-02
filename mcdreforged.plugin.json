@@ -15,6 +15,5 @@
         "minecraft_data_api": "*",
         "mg_events": ">=1.0.0"
     },
-    "archive_name": "SimpleTP-v{version}.pyz",
     "resources": []
 }
