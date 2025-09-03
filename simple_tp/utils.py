@@ -135,9 +135,9 @@ class TpCheckFlags(Flag):
 
 
 def teleport_check(
-    main_body: str,
+    main_body: str,  # 命令执行者
     check_flags: TpCheckFlags,
-    player: Optional[str] = None,
+    player: Optional[str] = None,  # 被传送者，None 则为命令执行者
     player_coord: Optional[CoordWithDimension] = None,
     player_dim: Optional[str] = None,
     target_coord: Optional[CoordWithDimension] = None,
@@ -187,56 +187,71 @@ def teleport_check(
     if TpCheckFlags.ONLINE in check_flags:
         player_list = simple_tp.online_player_counter.get_player_list()
         if player_list is None:
-            reply_error(
-                "Failed to retrieve the player list. Please ask an admin to check the server logs."
-            )
+            reply_error(tr("api.failed_get_player_list"))
             return False
         player = search_for_player(player, player_list)
 
         if player is None:
-            reply_error(f"Player {player} is not online.")
+            reply_error(tr("player_not_online", player=player))
             return False
         if target_player:
             target_player = search_for_player(target_player, player_list)
             if target_player is None:
-                reply_error(f"Player {target_player} is not online.")
+                reply_error(tr("player_not_online", player=target_player))
                 return False
 
     if TpCheckFlags.WORLD in check_flags:
         player_dim = dim_getter(player)
         if player_dim is None:
             reply_error(
-                f"Failed to retrieve player {player}'s dimension. Please ask an admin to check the server logs."
+                tr(
+                    "api.failed_get_dimension." + "you"
+                    if player == main_body
+                    else "other",
+                    player=player,
+                )
             )
             return False
         if player_dim not in simple_tp.plugin_config.worlds:
             reply_error(
-                f"Player {player} is in a dimension not enabled in the config: {player_dim}"
+                tr(
+                    "config.dim_not_allowed." + "you"
+                    if player == main_body
+                    else "other",
+                    player=player,
+                    dim=player_dim,
+                )
             )
             return False
         if target_player:
             target_dim = dim_getter(target_player)
             if target_dim is None:
                 reply_error(
-                    f"Failed to retrieve player {target_player}'s dimension. Please ask an admin to check the server logs."
+                    tr(
+                        "api.failed_get_dimension." + "you"
+                        if target_player == main_body
+                        else "other",
+                        player=target_player,
+                    )
                 )
                 return False
             if target_dim not in simple_tp.plugin_config.worlds:
                 reply_error(
-                    f"Player {target_player} is in a dimension not enabled in the config: {target_dim}"
+                    tr(
+                        "config.dim_not_allowed." + "you"
+                        if target_player == main_body
+                        else "other",
+                        player=target_player,
+                        dim=target_dim,
+                    )
                 )
                 return False
         if target_coord:
             target_dim = simple_tp.data_manager.dimension_sid2str[
                 target_coord.dimension
             ]
-            if target_dim not in simple_tp.plugin_config.worlds:
-                reply_error(
-                    f"Target Position is in a dimension not enabled in the config: {target_dim}"
-                )
-                return False
         if target_dim and target_dim not in simple_tp.plugin_config.worlds:
-            reply_error(f"Target dimension is not enabled in the config: {target_dim}")
+            reply_error(tr("config.dim_not_allowed.target", dim=target_dim))
             return False
 
     if TpCheckFlags.PERMISSION in check_flags:
@@ -251,8 +266,16 @@ def teleport_check(
             main_body, simple_tp.plugin_config.permissions.cross_world_tp
         ):
             reply_error(
-                f"Player {main_body} have no permission to teleport across dimensions. ({player_dim} -> {target_dim})"
+                tr(
+                    "no_permission.cross_dim_tp.you",
+                    source_dim=player_dim,
+                    target_dim=target_dim,
+                )
             )
             return False
 
     return True
+
+
+def tr(key: str, /, *args, **kwargs) -> str:
+    return simple_tp.plugin_server.tr("simple_tp." + key, *args, **kwargs)

@@ -120,6 +120,11 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
 
     teleport_request_manager = TeleportRequestManager()
 
+    need_player_kwargs = {
+        "requirement": lambda src: src.is_player,
+        "failure_message_getter": lambda: utils.tr("not_player_tip"),
+    }
+
     def player_suggestion(src: mcdr.CommandSource) -> List[str]:
         return online_player_counter.get_player_list(try_query=False) or []
 
@@ -136,7 +141,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         mcdr.Literal(plugin_config.command_prefix)
         .then(
             mcdr.Literal(["setp", "setpersonal"])
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .precondition(
                 lambda src: src.has_permission(
                     plugin_config.permissions.personal_waypoint
@@ -164,7 +169,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal(["setg", "setglobal"])
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .precondition(
                 lambda src: src.has_permission(
                     plugin_config.permissions.global_waypoint
@@ -192,7 +197,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal(["tpp", "tppersonal"])
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .then(
                 mcdr.Text("waypoint_name")
                 .suggests(
@@ -207,7 +212,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal(["tpg", "tpglobal"])
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .then(
                 mcdr.Text("waypoint_name")
                 .suggests(lambda: data_manager.get_global_waypoints().keys())
@@ -220,7 +225,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal(["delp", "delpersonal"])
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .precondition(
                 lambda src: src.has_permission(
                     plugin_config.permissions.personal_waypoint
@@ -260,7 +265,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal(["listp", "listpersonal"])
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .runs(lambda src: src.reply(get_waypoints_messages(src, scope="personal")))
         )
         .then(
@@ -270,7 +275,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal("back")
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .precondition(
                 lambda src: src.has_permission(
                     plugin_config.permissions.personal_waypoint
@@ -280,7 +285,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal("tp")
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .precondition(lambda src: src.has_permission(plugin_config.permissions.tp))
             .then(
                 mcdr.Text("target_player")
@@ -290,7 +295,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal("tphere")
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .precondition(
                 lambda src: src.has_permission(plugin_config.permissions.tphere)
             )
@@ -302,7 +307,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal("tpa")
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .precondition(lambda src: src.has_permission(plugin_config.permissions.tpa))
             .then(
                 mcdr.Text("target_player")
@@ -312,7 +317,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal("tpahere")
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .precondition(
                 lambda src: src.has_permission(plugin_config.permissions.tpahere)
             )
@@ -328,12 +333,12 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal("cancel")
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .runs(lambda src: cancel_tpa_request(src))
         )
         .then(
             mcdr.Literal(["accept", "allow"])
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .runs(lambda src: deal_tp_request(src, action="accept"))
             .then(
                 mcdr.Text("source_player").runs(
@@ -345,7 +350,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         )
         .then(
             mcdr.Literal(["deny", "reject"])
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .runs(lambda src: deal_tp_request(src, action="deny"))
             .then(
                 mcdr.Text("source_player").runs(
@@ -358,7 +363,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         .then(
             mcdr.Text("name")
             .precondition(lambda _: plugin_config.easy_tp)
-            .requires(lambda src: src.is_player, lambda: constants.NOT_PLAYER_TIP)
+            .requires(**need_player_kwargs)
             .suggests(get_all_names_suggestion)
             .runs(lambda src, ctx: easy_tp(src, ctx.get("name")))
         )
@@ -381,7 +386,12 @@ def teleport_to_coord(
             plugin_server.tell(
                 player,
                 mcdr.RText(
-                    f"Failed to retrieve position for player {player}. Please ask an admin to check the server logs.",
+                    utils.tr(
+                        "api.failed_get_position." + "you"
+                        if player == main_body
+                        else "other",
+                        player=player,
+                    ),
                     constants.ERROR_COLOR,
                 ),
             )
@@ -415,14 +425,18 @@ def teleport_to_coord(
         plugin_server.tell(
             player,
             mcdr.RText(
-                f"Your previous position {cur_position.x:.2f}, {cur_position.y:.2f}, {cur_position.z:.2f} in {data_manager.dimension_sid2str[cur_position.dimension]} has been recorded.",
+                utils.tr(
+                    "tp.success_record_previous_position",
+                    coord=f"{cur_position.x:.2f}, {cur_position.y:.2f}, {cur_position.z:.2f}",
+                    dim=data_manager.dimension_sid2str[cur_position.dimension],
+                ),
                 color=constants.TIP_COLOR,
             )
             + "  "
             + utils.get_command_button(
-                "[Back]",
+                utils.tr("button.back.text"),
                 plugin_config.command_prefix + " back",
-                hover_text="Click to teleport back to your previous position",
+                hover_text=utils.tr("button.back.hover"),
             ),
         )
 
@@ -444,8 +458,7 @@ def easy_tp(source: mcdr.PlayerCommandSource, name: str):
     if player_list is None:
         source.reply(
             mcdr.RText(
-                "Failed to retrieve the player list. Please ask an admin to check the server logs.",
-                color=constants.ERROR_COLOR,
+                utils.tr("api.failed_get_player_list"), color=constants.ERROR_COLOR
             )
         )
         return
@@ -453,7 +466,7 @@ def easy_tp(source: mcdr.PlayerCommandSource, name: str):
     if target_player is None:
         source.reply(
             mcdr.RText(
-                f"No matching waypoint or online player found for '{name}'.",
+                utils.tr("easy_tp.no_match", name=name),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -466,7 +479,7 @@ def easy_tp(source: mcdr.PlayerCommandSource, name: str):
         return
     source.reply(
         mcdr.RText(
-            "You do not have permission to teleport or send teleport requests to players.",
+            utils.tr("easy_tp.no_permission"),
         )
     )
 
@@ -481,7 +494,7 @@ def deal_tp_request(
     if not tp_request_dict:
         source.reply(
             mcdr.RText(
-                "You have no pending teleport requests.",
+                utils.tr("tp_request.no_pending"),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -494,7 +507,7 @@ def deal_tp_request(
         if tp_request is None:
             source.reply(
                 mcdr.RText(
-                    f"No pending teleport request from {target_player}.",
+                    utils.tr("tp_request.no_specific", player=target_player),
                     color=constants.ERROR_COLOR,
                 )
             )
@@ -513,7 +526,9 @@ def deal_tp_request(
             if target_coord is None:
                 source.reply(
                     mcdr.RText(
-                        f"Failed to retrieve position for player {tp_request.player}. Please ask an admin to check the server logs.",
+                        utils.tr(
+                            "api.failed_get_position.other", player=tp_request.player
+                        ),
                         color=constants.ERROR_COLOR,
                     )
                 )
@@ -523,21 +538,21 @@ def deal_tp_request(
             if target_coord is None:
                 source.reply(
                     mcdr.RText(
-                        "Failed to retrieve your position. Please ask an admin to check the server logs.",
+                        utils.tr("api.failed_get_position.you"),
                         color=constants.ERROR_COLOR,
                     )
                 )
                 return
         source.reply(
             mcdr.RText(
-                f"Accepted teleport request from {tp_request.player}.",
+                utils.tr("tp_request.accepted", player=tp_request.player),
                 color=constants.SUCCESS_COLOR,
             )
         )
         plugin_server.tell(
             tp_request.player,
             mcdr.RText(
-                f"{source.player} has accepted your teleport request. Teleporting now...",
+                utils.tr("tp_request.your_request_accepted", player=source.player),
                 color=constants.SUCCESS_COLOR,
             ),
         )
@@ -550,7 +565,7 @@ def deal_tp_request(
         ):
             source.reply(
                 mcdr.RText(
-                    f"Failed to teleport to the requested player. Please ask player {tp_request.player} to check the reason.",
+                    utils.tr("tp_request.failed_teleport", player=tp_request.player),
                     color=constants.ERROR_COLOR,
                 )
             )
@@ -558,14 +573,14 @@ def deal_tp_request(
     else:  # action == "deny"
         source.reply(
             mcdr.RText(
-                f"Denied teleport request from {tp_request.player}.",
+                utils.tr("tp_request.denied", player=tp_request.player),
                 color=constants.SUCCESS_COLOR,
             )
         )
         plugin_server.tell(
             tp_request.player,
             mcdr.RText(
-                f"{source.player} has denied your teleport request.",
+                utils.tr("tp_request.your_request_denied", player=source.player),
                 color=constants.ERROR_COLOR,
             ),
         )
@@ -593,52 +608,55 @@ def tp_request(
     if prev_request:
         source.reply(
             mcdr.RText(
-                f"You already have a pending teleport request to {prev_request.target_player}, please cancel it first.",
+                utils.tr(
+                    "tp_request.already_pending", player=prev_request.target_player
+                ),
                 color=constants.ERROR_COLOR,
             )
             + "  "
             + utils.get_command_button(
-                "[Cancel]",
+                utils.tr("button.cancel.text"),
                 f"{plugin_config.command_prefix} cancel",
-                hover_text="Click to cancel the teleport request",
+                hover_text=utils.tr("button.cancel.hover"),
             )
         )
         return
     source.reply(
         mcdr.RText(
-            f"Teleport request sent to {target_player}. Waiting for their response.",
+            utils.tr("tp_request.request_sent", player=target_player),
             color=constants.TIP_COLOR,
         )
         + "  "
         + utils.get_command_button(
-            "[Cancel]",
+            utils.tr("button.cancel.text"),
             f"{plugin_config.command_prefix} cancel",
-            hover_text="Click to cancel the teleport request",
+            hover_text=utils.tr("button.cancel.hover"),
         )
     )
     plugin_server.tell(
         target_player,
         (
             mcdr.RText(
-                f"{source.player} wants to teleport to you.", color=constants.TIP_COLOR
+                utils.tr("tp_request.request_received", player=source.player),
+                color=constants.TIP_COLOR,
             )
             if not is_reversed
             else mcdr.RText(
-                f"{source.player} wants you to teleport to them.",
+                utils.tr("tp_request.request_received_reversed", player=source.player),
                 color=constants.TIP_COLOR,
             )
         )
         + "  "
         + utils.get_command_button(
-            "[Accept]",
+            utils.tr("button.accept.text"),
             f"{plugin_config.command_prefix} accept {source.player}",
-            hover_text="Click to accept the teleport request",
+            hover_text=utils.tr("button.accept.hover"),
         )
         + " "
         + utils.get_command_button(
-            "[Deny]",
+            utils.tr("button.deny.text"),
             f"{plugin_config.command_prefix} deny {source.player}",
-            hover_text="Click to deny the teleport request",
+            hover_text=utils.tr("button.deny.hover"),
         ),
     )
 
@@ -649,7 +667,7 @@ def cancel_tpa_request(source: mcdr.PlayerCommandSource):
     if tp_request is None:
         source.reply(
             mcdr.RText(
-                "You have no pending teleport requests to cancel.",
+                utils.tr("tp_request.no_pending"),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -657,14 +675,14 @@ def cancel_tpa_request(source: mcdr.PlayerCommandSource):
     teleport_request_manager.remove_request(tp_request)
     source.reply(
         mcdr.RText(
-            f"Cancelled teleport request to {tp_request.target_player}.",
+            utils.tr("tp_request.cancelled", player=tp_request.target_player),
             color=constants.SUCCESS_COLOR,
         )
     )
     plugin_server.tell(
         tp_request.target_player,
         mcdr.RText(
-            f"{source.player} has cancelled the teleport request.",
+            utils.tr("tp_request.source_cancelled", player=source.player),
             color=constants.WARNING_COLOR,
         ),
     )
@@ -678,7 +696,7 @@ def tp_to_player(
     if not target_player:
         source.reply(
             mcdr.RText(
-                "Please provide a player name to teleport to.",
+                utils.tr("tp_user.no_target_player_provided"),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -695,7 +713,7 @@ def tp_to_player(
     if coord is None:
         source.reply(
             mcdr.RText(
-                f"Failed to retrieve position for player {target_player}. Please ask an admin to check the server logs.",
+                utils.tr("api.failed_get_position.other", player=target_player),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -703,7 +721,12 @@ def tp_to_player(
 
     source.reply(
         mcdr.RText(
-            f"Teleporting to {target_player} at {data_manager.dimension_sid2str[coord.dimension]}({coord.x:.2f}, {coord.y:.2f}, {coord.z:.2f})",
+            utils.tr(
+                "tp_user.teleporting_to",
+                player=target_player,
+                coord=f"{coord.x:.2f}, {coord.y:.2f}, {coord.z:.2f}",
+                dim=data_manager.dimension_sid2str[coord.dimension],
+            ),
             color=constants.SUCCESS_COLOR,
         )
     )
@@ -718,7 +741,7 @@ def tp_here(
     if not target_player:
         source.reply(
             mcdr.RText(
-                "Please provide a player name to teleport here.",
+                utils.tr("tp_here.no_target_player_provided"),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -728,7 +751,7 @@ def tp_here(
     if coord is None:
         source.reply(
             mcdr.RText(
-                "Failed to retrieve your position. Please ask an admin to check the server logs.",
+                utils.tr("api.failed_get_position.you"),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -743,12 +766,13 @@ def tp_here(
 
     source.reply(
         mcdr.RText(
-            f"Teleporting {target_player} to you.",
+            utils.tr("tp_here.teleporting_player", player=target_player),
             color=constants.SUCCESS_COLOR,
         )
     )
     plugin_server.tell(
-        target_player, mcdr.RText(f"You are being teleported to {source.player}.")
+        target_player,
+        mcdr.RText(utils.tr("tp_here.being_teleported", player=source.player)),
     )
     teleport_to_coord(source.player, target_coord=coord, player=target_player)
 
@@ -762,7 +786,8 @@ def delete_waypoint(
     if not waypoint_name:
         source.reply(
             mcdr.RText(
-                "Please provide a name for the waypoint.", color=constants.ERROR_COLOR
+                utils.tr("waypoint.del.no_name_provided"),
+                color=constants.ERROR_COLOR,
             )
         )
         return
@@ -770,7 +795,9 @@ def delete_waypoint(
     if waypoint_name == constants.BACK_WAYPOINT_ID:
         source.reply(
             mcdr.RText(
-                f"'{constants.BACK_WAYPOINT_ID}' is a reserved waypoint name and cannot be deleted.",
+                utils.tr(
+                    "waypoint.del.back_reserved", back_id=constants.BACK_WAYPOINT_ID
+                ),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -782,7 +809,7 @@ def delete_waypoint(
         if not source.is_player:
             source.reply(
                 mcdr.RText(
-                    "This command can only be used by players.",
+                    utils.tr("not_player_tip"),
                     color=constants.ERROR_COLOR,
                 )
             )
@@ -793,7 +820,10 @@ def delete_waypoint(
     if waypoint_name not in waypoint_dict:
         source.reply(
             mcdr.RText(
-                f"Waypoint '{waypoint_name}' does not exist in {'global' if is_global else 'your personal'} waypoints.",
+                utils.tr(
+                    "waypoint.del.not_found." + ("global" if is_global else "personal"),
+                    name=waypoint_name,
+                ),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -807,7 +837,10 @@ def delete_waypoint(
         data_manager.set_personal_waypoints(source.player, waypoint_dict)
     source.reply(
         mcdr.RText(
-            f"Waypoint '{waypoint_name}' has been deleted successfully.",
+            utils.tr(
+                "waypoint.del.success." + ("global" if is_global else "personal"),
+                name=waypoint_name,
+            ),
             color=constants.SUCCESS_COLOR,
         )
     )
@@ -820,7 +853,8 @@ def teleport_to_waypoint(
     if not waypoint_name:
         source.reply(
             mcdr.RText(
-                "Please provide a name for the waypoint.", color=constants.ERROR_COLOR
+                utils.tr("waypoint.tp.no_name_provided"),
+                color=constants.ERROR_COLOR,
             )
         )
         return
@@ -828,7 +862,9 @@ def teleport_to_waypoint(
     if waypoint_name == constants.BACK_WAYPOINT_ID:
         source.reply(
             mcdr.RText(
-                f"'{constants.BACK_WAYPOINT_ID}' is a reserved waypoint name and cannot be used.",
+                utils.tr(
+                    "waypoint.tp.back_reserved", back_id=constants.BACK_WAYPOINT_ID
+                ),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -844,7 +880,10 @@ def teleport_to_waypoint(
     if waypoint_name not in waypoint_dict:
         source.reply(
             mcdr.RText(
-                f"Waypoint '{waypoint_name}' does not exist in {'global' if is_global else 'your personal'} waypoints.",
+                utils.tr(
+                    "waypoint.tp.not_found." + ("global" if is_global else "personal"),
+                    name=waypoint_name,
+                ),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -853,7 +892,12 @@ def teleport_to_waypoint(
     position = waypoint_dict[waypoint_name]
     source.reply(
         mcdr.RText(
-            f"Teleporting to waypoint '{waypoint_name}': {data_manager.dimension_sid2str[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
+            utils.tr(
+                "waypoint.tp.teleporting",
+                name=waypoint_name,
+                dim=data_manager.dimension_sid2str[position.dimension],
+                coord=f"{position.x:.2f}, {position.y:.2f}, {position.z:.2f}",
+            ),
             color=constants.SUCCESS_COLOR,
         )
     )
@@ -870,7 +914,8 @@ def set_waypoint(
     if not waypoint_name:
         source.reply(
             mcdr.RText(
-                "Please provide a name for the waypoint.", color=constants.ERROR_COLOR
+                utils.tr("waypoint.set.no_name_provided"),
+                color=constants.ERROR_COLOR,
             )
         )
         return
@@ -878,7 +923,9 @@ def set_waypoint(
     if waypoint_name == constants.BACK_WAYPOINT_ID:
         source.reply(
             mcdr.RText(
-                f"'{constants.BACK_WAYPOINT_ID}' is a reserved waypoint name and cannot be used.",
+                utils.tr(
+                    "waypoint.set.back_reserved", back_id=constants.BACK_WAYPOINT_ID
+                ),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -889,8 +936,8 @@ def set_waypoint(
     if position is None:
         source.reply(
             mcdr.RText(
-                "Failed to retrieve your position. Please ask an admin to check the server logs.",
-                constants.ERROR_COLOR,
+                utils.tr("api.failed_get_position.you"),
+                color=constants.ERROR_COLOR,
             )
         )
         return
@@ -898,7 +945,10 @@ def set_waypoint(
     if data_manager.dimension_sid2str[position.dimension] not in plugin_config.worlds:
         source.reply(
             mcdr.RText(
-                "You are in a dimension not enabled in the config.",
+                utils.tr(
+                    "config.dim_not_allowed.you",
+                    dim=data_manager.dimension_sid2str[position.dimension],
+                ),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -913,14 +963,24 @@ def set_waypoint(
         if not overwrite:
             source.reply(
                 mcdr.RText(
-                    f"Waypoint '{waypoint_name}': {data_manager.dimension_sid2str[old_position.dimension]}({old_position.x:.2f}, {old_position.y:.2f}, {old_position.z:.2f}) already exists. Use the command with -f to overwrite it.",
+                    utils.tr(
+                        "waypoint.set.exists",
+                        name=waypoint_name,
+                        dim=data_manager.dimension_sid2str[old_position.dimension],
+                        coord=f"{old_position.x:.2f}, {old_position.y:.2f}, {old_position.z:.2f}",
+                    ),
                     color=constants.ERROR_COLOR,
                 )
             )
             return
         source.reply(
             mcdr.RText(
-                f"Waypoint '{waypoint_name}': {data_manager.dimension_sid2str[old_position.dimension]}({old_position.x:.2f}, {old_position.y:.2f}, {old_position.z:.2f}) already exists, and will be overwritten.",
+                utils.tr(
+                    "waypoint.set.overwrite",
+                    name=waypoint_name,
+                    dim=data_manager.dimension_sid2str[old_position.dimension],
+                    coord=f"{old_position.x:.2f}, {old_position.y:.2f}, {old_position.z:.2f}",
+                ),
                 color=constants.WARNING_COLOR,
             )
         )
@@ -931,7 +991,12 @@ def set_waypoint(
         data_manager.set_personal_waypoints(player, waypoint_dict)
     source.reply(
         mcdr.RText(
-            f"Waypoint '{waypoint_name}' successfully set to your current position: {data_manager.dimension_sid2str[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
+            utils.tr(
+                "waypoint.set.success",
+                name=waypoint_name,
+                dim=data_manager.dimension_sid2str[position.dimension],
+                coord=f"{position.x:.2f}, {position.y:.2f}, {position.z:.2f}",
+            ),
             color=constants.SUCCESS_COLOR,
         )
     )
@@ -944,7 +1009,7 @@ def back_to_recorded_position(source: mcdr.PlayerCommandSource):
     if constants.BACK_WAYPOINT_ID not in personal_waypoints:
         source.reply(
             mcdr.RText(
-                "No recorded position found. Please set a waypoint first.",
+                utils.tr("back.no_recorded_position"),
                 color=constants.ERROR_COLOR,
             )
         )
@@ -953,7 +1018,11 @@ def back_to_recorded_position(source: mcdr.PlayerCommandSource):
     position = personal_waypoints[constants.BACK_WAYPOINT_ID]
     source.reply(
         mcdr.RText(
-            f"Teleporting back to your previous position: {data_manager.dimension_sid2str[position.dimension]}({position.x:.2f}, {position.y:.2f}, {position.z:.2f})",
+            utils.tr(
+                "back.teleporting",
+                dim=data_manager.dimension_sid2str[position.dimension],
+                coord=f"{position.x:.2f}, {position.y:.2f}, {position.z:.2f}",
+            ),
             color=constants.SUCCESS_COLOR,
         )
     )
@@ -978,12 +1047,17 @@ def get_waypoints_messages(
     if source.is_player and scope != "global":
         assert isinstance(source, mcdr.PlayerCommandSource)
         replyTextLines.append(
-            mcdr.RText("[Personal Waypoints]", color=mcdr.RColor.light_purple)
+            mcdr.RText(
+                utils.tr("list.personal_waypoints_header"),
+                color=mcdr.RColor.light_purple,
+            )
         )
         waypoints = data_manager.get_personal_waypoints(source.player)
         if not waypoints:
             replyTextLines.append(
-                mcdr.RText("No personal waypoints found.", color=mcdr.RColor.gray)
+                mcdr.RText(
+                    utils.tr("list.no_personal_waypoints"), color=mcdr.RColor.gray
+                )
             )
         for name, pos in waypoints.items():
             if name == constants.BACK_WAYPOINT_ID:
@@ -998,15 +1072,15 @@ def get_waypoints_messages(
                 rtext += (
                     "  "
                     + utils.get_command_button(
-                        "[TP]",
+                        utils.tr("button.tp.text"),
                         f"{plugin_config.command_prefix} tpp {name}",
-                        hover_text="Click to teleport to this waypoint",
+                        hover_text=utils.tr("button.tp.hover"),
                     )
                     + " "
                     + utils.get_command_button(
-                        "[DEL]",
+                        utils.tr("button.del.text"),
                         f"{plugin_config.command_prefix} delp {name}",
-                        hover_text="Click to input the delete command",
+                        hover_text=utils.tr("button.del.hover"),
                         color=mcdr.RColor.red,
                     )
                 )
@@ -1015,12 +1089,14 @@ def get_waypoints_messages(
 
     if scope != "personal":
         replyTextLines.append(
-            mcdr.RText("[Global Waypoints]", color=mcdr.RColor.light_purple)
+            mcdr.RText(
+                utils.tr("list.global_waypoints_header"), color=mcdr.RColor.light_purple
+            )
         )
         waypoints = data_manager.get_global_waypoints()
         if not waypoints:
             replyTextLines.append(
-                mcdr.RText("No global waypoints found.", color=mcdr.RColor.gray)
+                mcdr.RText(utils.tr("list.no_global_waypoints"), color=mcdr.RColor.gray)
             )
         for name, pos in waypoints.items():
             rtext = mcdr.RText(name, color=get_dim_color(pos.dimension)) + mcdr.RText(
@@ -1029,15 +1105,15 @@ def get_waypoints_messages(
             )
             if source.is_player:
                 rtext += "  " + utils.get_command_button(
-                    "[TP]",
+                    utils.tr("button.tp.text"),
                     f"{plugin_config.command_prefix} tpg {name}",
-                    hover_text="Click to teleport to this waypoint",
+                    hover_text=utils.tr("button.tp.hover"),
                 )
                 if source.has_permission(plugin_config.permissions.global_waypoint):
                     rtext += " " + utils.get_command_button(
-                        "[DEL]",
+                        utils.tr("button.del.text"),
                         f"{plugin_config.command_prefix} delg {name}",
-                        hover_text="Click to input the delete command",
+                        hover_text=utils.tr("button.del.hover"),
                         color=mcdr.RColor.red,
                     )
             replyTextLines.append(rtext)
@@ -1052,7 +1128,7 @@ def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str,
         server.tell(
             player,
             mcdr.RText(
-                "Failed to record your death position. Please ask an admin to check the server logs.",
+                utils.tr("api.failed_get_position.you"),
                 constants.ERROR_COLOR,
             ),
         )
@@ -1062,7 +1138,10 @@ def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str,
         server.tell(
             player,
             mcdr.RText(
-                "Your death position is in an unsupported dimension.",
+                utils.tr(
+                    "back.recorded_on_death.failed_dim",
+                    dim=data_manager.dimension_sid2str[death_position.dimension],
+                ),
                 constants.ERROR_COLOR,
             ),
         )
@@ -1076,14 +1155,18 @@ def on_player_death(server: mcdr.PluginServerInterface, player: str, event: str,
     server.tell(
         player,
         mcdr.RText(
-            "Your death position has been recorded",
+            utils.tr(
+                "back.recorded_on_death.success",
+                coord=f"{death_position.x:.2f}, {death_position.y:.2f}, {death_position.z:.2f}",
+                dim=data_manager.dimension_sid2str[death_position.dimension],
+            ),
             color=constants.TIP_COLOR,
         )
         + "  "
         + utils.get_command_button(
-            "[Back]",
+            utils.tr("button.death_back.text"),
             plugin_config.command_prefix + " back",
-            hover_text="Click to teleport back to your death position",
+            hover_text=utils.tr("button.death_back.hover"),
         ),
     )
 

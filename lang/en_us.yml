@@ -1,0 +1,105 @@
+simple_tp:
+  not_player_tip: "This command can only be used by players."
+  player_not_online: "Player {player} is not online."
+  no_permission:
+    cross_dim_tp:
+      you: "You do not have permission to teleport across dimensions. ({source_dim} -> {target_dim})"
+      other: "Player {player} does not have permission to teleport across dimensions. ({source_dim} -> {target_dim})"
+  config:
+    dim_not_allowed:
+      you: "You are in a dimension '{dim}' not enabled in the config."
+      other: "Player {player} is in a dimension '{dim}' not enabled in the config."
+      target: "Target position is in a dimension '{dim}' not enabled in the config."
+  button:
+    back:
+      text: "[Back]"
+      hover: "Click to teleport back to your previous position"
+    death_back:
+      text: "[Back]"
+      hover: "Click to teleport back to your death position"
+    tp:
+      text: "[TP]"
+      hover: "Click to teleport to this waypoint"
+    del:
+      text: "[DEL]"
+      hover: "Click to delete this waypoint"
+    cancel:
+      text: "[Cancel]"
+      hover: "Click to cancel the teleport request"
+    accept:
+      text: "[Accept]"
+      hover: "Click to accept the teleport request"
+    deny:
+      text: "[Deny]"
+      hover: "Click to deny the teleport request"
+  list:
+    personal_waypoints_header: "--Personal Waypoints--"
+    no_personal_waypoints: "No personal waypoints found."
+    global_waypoints_header: "--Global Waypoints--"
+    no_global_waypoints: "No global waypoints found."
+  api:
+    failed_get_position:
+      you: "Failed to retrieve your position. Please ask an admin to check the server logs."
+      other: "Failed to retrieve position for player {player}. Please ask an admin to check the server logs."
+    failed_get_player_list: "Failed to retrieve the player list. Please ask an admin to check the server logs."
+    failed_get_dimension:
+      you: "Failed to retrieve your dimension. Please ask an admin to check the server logs."
+      other: "Failed to retrieve dimension for player {player}. Please ask an admin to check the server logs."
+  tp:
+    success_record_previous_position: "Your previous position {dim}({coord}) has been recorded."
+  easy_tp:
+    no_match: "No matching waypoint or online player found for '{name}'."
+    no_permission: "You do not have permission to teleport or send teleport requests to players."
+  tp_request:
+    no_pending: "You have no pending teleport requests."
+    no_specific: "No pending teleport request from {player}."
+    accepted: "Accepted teleport request from {player}."
+    your_request_accepted: "{player} has accepted your teleport request. Teleporting now..."
+    failed_teleport: "Failed to teleport to the requested player. Please ask player {player} to check the reason."
+    denied: "Denied teleport request from {player}."
+    your_request_denied: "{player} has denied your teleport request."
+    already_pending: "You already have a pending teleport request to {player}, please cancel it first."
+    request_sent: "Teleport request sent to {player}. Waiting for their response."
+    request_received: "{player} wants to teleport to you."
+    request_received_reversed: "{player} wants you to teleport to them."
+    cancelled: "Cancelled teleport request to {player}."
+    source_cancelled: "{player} has cancelled the teleport request."
+  tp_user:
+    no_target_player_provided: "Please provide a player name to teleport to."
+    teleporting_to: "Teleporting to {player} at {dim}({coord})"
+  tp_here:
+    no_target_player_provided: "Please provide a player name to teleport here."
+    teleporting_player: "Teleporting {player} to you."
+    being_teleported: "You are being teleported to {player}."
+  waypoint:
+    del:
+      no_name_provided: "Please provide a name for the waypoint to delete."
+      back_reserved: "'{back_id}' is a reserved waypoint name and cannot be deleted."
+      not_found:
+        personal: "Waypoint '{name}' does not exist in your personal waypoints."
+        global: "Waypoint '{name}' does not exist in global waypoints."
+      success:
+        personal: "Waypoint '{name}' has been deleted successfully from your personal waypoints."
+        global: "Waypoint '{name}' has been deleted successfully from global waypoints."
+    tp:
+      no_name_provided: "Please provide a name for the waypoint to teleport to."
+      back_reserved: "'{back_id}' is a reserved waypoint name and cannot be used as a waypoint."
+      not_found:
+        personal: "Waypoint '{name}' does not exist in your personal waypoints."
+        global: "Waypoint '{name}' does not exist in global waypoints."
+      success:
+        personal: "Teleported to personal waypoint '{name}' at {dim}({coord})."
+        global: "Teleported to global waypoint '{name}' at {dim}({coord})."
+      teleporting: "Teleporting to waypoint '{name}': {dim}({coord})"
+    set:
+      no_name_provided: "Please provide a name for the waypoint to set."
+      back_reserved: "'{back_id}' is a reserved waypoint name and cannot be used as a waypoint."
+      exists: "Waypoint '{name}': {dim}({coord}) already exists. Use the command with -f to overwrite it."
+      overwrite: "Waypoint '{name}': {dim}({coord}) already exists, and will be overwritten."
+      success: "Waypoint '{name}' successfully set to your current position: {dim}({coord})"
+  back:
+    no_recorded_position: "No recorded position found. Use it after teleporting or deathing."
+    teleporting: "Teleporting back to your previous position: {dim}({coord})"
+    recorded_on_death:
+      success: "Your death position has been recorded at {dim}({coord})"
+      failed_dim: "Your death position is in a dimension '{dim}' not enabled in the config."

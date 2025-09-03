@@ -15,5 +15,8 @@
         "minecraft_data_api": "*",
         "mg_events": ">=1.0.0"
     },
-    "resources": []
+    "resources": [
+        "lang",
+        "LICENSE"
+    ]
 }

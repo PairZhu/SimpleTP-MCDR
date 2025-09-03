@@ -1,0 +1,105 @@
+simple_tp:
+  not_player_tip: "此命令只能由玩家使用。"
+  player_not_online: "玩家 {player} 不在线。"
+  no_permission:
+    cross_dim_tp:
+      you: "你没有跨维度传送的权限。({source_dim} -> {target_dim})"
+      other: "玩家 {player} 没有跨维度传送的权限。({source_dim} -> {target_dim})"
+  config:
+    dim_not_allowed:
+      you: "你所在的维度 '{dim}' 未在配置中启用。"
+      other: "玩家 {player} 所在的维度 '{dim}' 未在配置中启用。"
+      target: "目标位置所在的维度 '{dim}' 未在配置中启用。"
+  button:
+    back:
+      text: "[返回]"
+      hover: "点击传送回你之前的位置"
+    death_back:
+      text: "[返回]"
+      hover: "点击传送回你的死亡位置"
+    tp:
+      text: "[传送]"
+      hover: "点击传送到此传送点"
+    del:
+      text: "[删除]"
+      hover: "点击删除此传送点"
+    cancel:
+      text: "[取消]"
+      hover: "点击取消传送请求"
+    accept:
+      text: "[接受]"
+      hover: "点击接受传送请求"
+    deny:
+      text: "[拒绝]"
+      hover: "点击拒绝传送请求"
+  list:
+    personal_waypoints_header: "--个人传送点--"
+    no_personal_waypoints: "未找到个人传送点。"
+    global_waypoints_header: "--全局传送点--"
+    no_global_waypoints: "未找到全局传送点。"
+  api:
+    failed_get_position:
+      you: "无法获取你的位置。请联系管理员检查服务器日志。"
+      other: "无法获取玩家 {player} 的位置。请联系管理员检查服务器日志。"
+    failed_get_player_list: "无法获取玩家列表。请联系管理员检查服务器日志。"
+    failed_get_dimension:
+      you: "无法获取你的维度。请联系管理员检查服务器日志。"
+      other: "无法获取玩家 {player} 的维度。请联系管理员检查服务器日志。"
+  tp:
+    success_record_previous_position: "你的上一个位置 {dim}({coord}) 已被记录。"
+  easy_tp:
+    no_match: "未找到与 '{name}' 匹配的传送点或在线玩家。"
+    no_permission: "你没有权限传送或向玩家发送传送请求。"
+  tp_request:
+    no_pending: "你没有待处理的传送请求。"
+    no_specific: "没有来自 {player} 的待处理传送请求。"
+    accepted: "已接受来自 {player} 的传送请求。"
+    your_request_accepted: "{player} 已接受你的传送请求，正在传送……"
+    failed_teleport: "无法传送到请求的玩家。请让玩家 {player} 检查原因。"
+    denied: "已拒绝来自 {player} 的传送请求。"
+    your_request_denied: "{player} 已拒绝你的传送请求。"
+    already_pending: "你已经有一个发往 {player} 的待处理传送请求，请先取消。"
+    request_sent: "已向 {player} 发送传送请求，等待对方回应。"
+    request_received: "{player} 想要传送到你这里。"
+    request_received_reversed: "{player} 想让你传送到他们那里。"
+    cancelled: "已取消向 {player} 的传送请求。"
+    source_cancelled: "{player} 已取消传送请求。"
+  tp_user:
+    no_target_player_provided: "请提供要传送到的玩家名称。"
+    teleporting_to: "正在传送到 {player}，位置：{dim}({coord})"
+  tp_here:
+    no_target_player_provided: "请提供要传送到你这里的玩家名称。"
+    teleporting_player: "正在传送 {player} 到你这里。"
+    being_teleported: "你正在被传送到 {player}。"
+  waypoint:
+    del:
+      no_name_provided: "请提供要删除的传送点名称。"
+      back_reserved: "'{back_id}' 是保留的传送点名称，无法删除。"
+      not_found:
+        personal: "个人传送点中不存在名为 '{name}' 的传送点。"
+        global: "全局传送点中不存在名为 '{name}' 的传送点。"
+      success:
+        personal: "个人传送点 '{name}' 已成功删除。"
+        global: "全局传送点 '{name}' 已成功删除。"
+    tp:
+      no_name_provided: "请提供要传送到的传送点名称。"
+      back_reserved: "'{back_id}' 是保留的传送点名称，无法使用。"
+      not_found:
+        personal: "个人传送点中不存在名为 '{name}' 的传送点。"
+        global: "全局传送点中不存在名为 '{name}' 的传送点。"
+      success:
+        personal: "已传送到个人传送点 '{name}'，位置：{dim}({coord})。"
+        global: "已传送到全局传送点 '{name}'，位置：{dim}({coord})。"
+      teleporting: "正在传送到传送点 '{name}'：{dim}({coord})"
+    set:
+      no_name_provided: "请提供要设置的传送点名称。"
+      back_reserved: "'{back_id}' 是保留的传送点名称，无法使用。"
+      exists: "传送点 '{name}'：{dim}({coord}) 已存在。使用 -f 参数可覆盖。"
+      overwrite: "传送点 '{name}'：{dim}({coord}) 已存在，将被覆盖。"
+      success: "已成功设置传送点 '{name}' 到你当前的位置：{dim}({coord})"
+  back:
+    no_recorded_position: "未找到已记录的位置。请在传送或死亡后使用。"
+    teleporting: "正在传送回你之前的位置：{dim}({coord})"
+    recorded_on_death:
+      success: "你的死亡位置已记录：{dim}({coord})"
+      failed_dim: "你的死亡位置位于未在配置中启用的维度 '{dim}'。"
