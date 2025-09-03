@@ -16,34 +16,13 @@ A simple teleportation plugin designed to create waypoints and implement the tel
 - Configurable enabled dimensions with support for modded dimensions (like Twilight Forest, Eternal Starlight, etc.)
 - Support for returning to death location and previous location before teleporting
 - Most commands support clickable operations for convenience
+- Easytp syntax sugar: `stp xxx` is equivalent to `stp tpp/tpg/tp/tpa xxx`, automatically recognizing waypoints and players, with priority `Personal Waypoint > Global Waypoint > Player`
 
 ## Commands
 The following examples use the default prefix "!!stp". Adjust according to your configuration file.
+- !!stp help View help information
 
-### Personal Waypoints
-- **Create Personal Waypoint at Current Location**: `!!stp setp (-f?) <name>`, where `-f` indicates to force overwrite an existing waypoint with the same name
-- **Teleport to Personal Waypoint**: `!!stp tpp <name>`
-- **Delete Personal Waypoint**: `!!stp delp <name>`
-- **List All Personal Waypoints**: `!!stp listp`
-
-### Global Waypoints (Public Waypoints)
-- **Create Global Waypoint at Current Location**: `!!stp setg (-f?) <name>`, where `-f` indicates to force overwrite an existing waypoint with the same name
-- **Teleport to Global Waypoint**: `!!stp tpg <name>`
-- **Delete Global Waypoint**: `!!stp delg <name>`
-- **List All Global Waypoints**: `!!stp listg`
-
-### TP Commands
-- **Teleport to Player**: `!!stp tp <player>`
-- **Teleport Player to Self**: `!!stp tphere <player>`
-- **Request Teleport to Player**: `!!stp tpa <player>`
-- **Request Player to Teleport to Self**: `!!stp tpahere <player>`
-- **Cancel Teleport Request**: `!!stp cancel`
-- **Accept Teleport Request**: `!!stp accept <player?>`
-- **Deny Teleport Request**: `!!stp deny <player?>`
-
-### Other Commands
-- **List All Waypoints** (personal and global): `!!stp list`
-- **Return to Last Location**: `!!stp back` (available after teleporting or upon death)
+Preview commands can be found in the [language file](./lang/en_us.yml) under the help section.
 
 ## Configuration File
 The configuration file is located at `config/SimpleTP/config.json`
@@ -53,6 +32,7 @@ The configuration file is located at `config/SimpleTP/config.json`
 - **permissions**: Permission configuration
 - **worlds**: List of supported dimensions (including mod dimensions), default is `["minecraft:overworld", "minecraft:the_nether", "minecraft:the_end"]`. Teleportation will not work in dimensions not in this list. To disable teleportation in a dimension, simply remove it from the list.
 - **extra_dimensions**: ***Only required for Minecraft versions before 1.16***, configuration format is `{<dimension_id>: "<dimension_name>"}`, for example `{0: "minecraft:overworld", 1: "minecraft:the_nether", 2: "minecraft:the_end"}`. This configuration is used to support mod dimensions in older Minecraft versions.
+- **easy_tp**: Whether to enable easytp syntax sugar, default is `true`.
 
 ### Permission Configuration
 - **back**: Permission to use `!!stp back` command
@@ -88,7 +68,8 @@ Sorted by priority:
 - [x] Scheduled saving of waypoint data (to prevent loss on crash)
 - [x] `tp`/`tphere` functionality
 - [x] `tpa`/`tpahere` functionality
-- [ ] Add help information
+- [x] Multi-language support
+- [x] Help information
 - [ ] Record player's orientation in waypoints
 - [ ] Add description information for waypoints
 - [ ] Teleport cooldown configuration
@@ -96,4 +77,3 @@ Sorted by priority:
 - [ ] Waypoint name length limit configuration
 - [ ] Waypoint safety check, prompting confirmation or teleporting to nearby safe location if the waypoint is in a dangerous position
 - [ ] Teleport cost configuration (consume custom items or experience) (base cost + distance cost)
-- [ ] Multi-language support
