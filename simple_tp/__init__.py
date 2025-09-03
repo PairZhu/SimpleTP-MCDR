@@ -1043,6 +1043,33 @@ def get_waypoints_messages(
             return constants.DIM_COLORS[-1]
         return constants.DIM_COLORS[index]
 
+    def waypoint_item_to_rtext(
+        name: str, pos: utils.CoordWithDimension, is_global: bool
+    ) -> mcdr.RText:
+        rtext = mcdr.RText(name, color=get_dim_color(pos.dimension)) + mcdr.RText(
+            f": {data_manager.dimension_sid2str[pos.dimension]}({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})",
+            color=mcdr.RColor.gray,
+        )
+        if source.is_player:
+            rtext += "  " + utils.get_command_button(
+                utils.tr("button.tp.text"),
+                f"{plugin_config.command_prefix} tpg {name}"
+                if is_global
+                else f"{plugin_config.command_prefix} tpp {name}",
+            )
+            if not is_global or source.has_permission(
+                plugin_config.permissions.global_waypoint
+            ):
+                rtext += " " + utils.get_command_button(
+                    utils.tr("button.del.text"),
+                    f"{plugin_config.command_prefix} delg {name}"
+                    if is_global
+                    else f"{plugin_config.command_prefix} delp {name}",
+                    hover_text=utils.tr("button.del.hover"),
+                    color=mcdr.RColor.red,
+                )
+        return rtext
+
     replyTextLines: List[mcdr.RText] = []
     if source.is_player and scope != "global":
         assert isinstance(source, mcdr.PlayerCommandSource)
@@ -1062,30 +1089,7 @@ def get_waypoints_messages(
         for name, pos in waypoints.items():
             if name == constants.BACK_WAYPOINT_ID:
                 continue
-
-            rtext = mcdr.RText(name, color=get_dim_color(pos.dimension)) + mcdr.RText(
-                f": {data_manager.dimension_sid2str[pos.dimension]}({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})",
-                color=mcdr.RColor.gray,
-            )
-
-            if source.is_player:
-                rtext += (
-                    "  "
-                    + utils.get_command_button(
-                        utils.tr("button.tp.text"),
-                        f"{plugin_config.command_prefix} tpp {name}",
-                        hover_text=utils.tr("button.tp.hover"),
-                    )
-                    + " "
-                    + utils.get_command_button(
-                        utils.tr("button.del.text"),
-                        f"{plugin_config.command_prefix} delp {name}",
-                        hover_text=utils.tr("button.del.hover"),
-                        color=mcdr.RColor.red,
-                    )
-                )
-
-            replyTextLines.append(rtext)
+            replyTextLines.append(waypoint_item_to_rtext(name, pos, is_global=False))
 
     if scope != "personal":
         replyTextLines.append(
@@ -1099,24 +1103,7 @@ def get_waypoints_messages(
                 mcdr.RText(utils.tr("list.no_global_waypoints"), color=mcdr.RColor.gray)
             )
         for name, pos in waypoints.items():
-            rtext = mcdr.RText(name, color=get_dim_color(pos.dimension)) + mcdr.RText(
-                f": {data_manager.dimension_sid2str[pos.dimension]}({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f})",
-                color=mcdr.RColor.gray,
-            )
-            if source.is_player:
-                rtext += "  " + utils.get_command_button(
-                    utils.tr("button.tp.text"),
-                    f"{plugin_config.command_prefix} tpg {name}",
-                    hover_text=utils.tr("button.tp.hover"),
-                )
-                if source.has_permission(plugin_config.permissions.global_waypoint):
-                    rtext += " " + utils.get_command_button(
-                        utils.tr("button.del.text"),
-                        f"{plugin_config.command_prefix} delg {name}",
-                        hover_text=utils.tr("button.del.hover"),
-                        color=mcdr.RColor.red,
-                    )
-            replyTextLines.append(rtext)
+            replyTextLines.append(waypoint_item_to_rtext(name, pos, is_global=True))
 
     return mcdr.RTextBase.join("\n", replyTextLines)
 
