@@ -1,4 +1,28 @@
 simple_tp:
+  help:
+    summary: "SimpleTP Commands help information"
+    content: |-
+      -- SimpleTP Commands --
+      {prefix} help: Show this help message.
+      {prefix} setp/setpersonal <waypoint> [-f]: Set a personal waypoint at your current position.
+      {prefix} tpp/tpersonal <waypoint>: Teleport to a personal waypoint.
+      {prefix} delp/delpersonal <waypoint>: Delete a personal waypoint.
+      {prefix} setg/setglobal <waypoint> [-f]: Set a global waypoint at your current position.
+      {prefix} tpg/tglobal <waypoint>: Teleport to a global waypoint.
+      {prefix} delg/delglobal <waypoint>: Delete a global waypoint.
+      {prefix} list: List all global and your personal waypoints.
+      {prefix} listp/listpersonal: List your personal waypoints.
+      {prefix} listg/listglobal: List all global waypoints.
+      {prefix} tp <player>: Teleport to another player
+      {prefix} tphere <player>: Teleport another player to you
+      {prefix} tpa <player>: Ask to teleport to another player
+      {prefix} tpahere <player>: Ask another player to teleport to you
+      {prefix} cancel: Cancel your pending teleport request
+      {prefix} accept/allow [<player>]: Accept a pending teleport request, optionally specify the player name, if not specified, accept the latest one.
+      {prefix} deny/reject [<player>]: Deny a pending teleport request, optionally specify the player name, if not specified, deny the latest one.
+      {prefix} back: Teleport back to your previous position before your last teleport or death.
+      {prefix} <waypoint/player>: auto-detect and teleport to a personal/global waypoint or an online player. (Requires easy_tp enabled in config)
+
   not_player_tip: "This command can only be used by players."
   player_not_online: "Player {player} is not online."
   no_permission:

@@ -1,4 +1,27 @@
 simple_tp:
+  help:
+    summary: "SimpleTP 命令帮助"
+    content: |-
+      -- SimpleTP 命令 --
+      {prefix} help: 显示此帮助信息。
+      {prefix} setp/setpersonal <传送点> [-f]: 在你当前位置设置一个个人传送点。
+      {prefix} tpp/tpersonal <传送点>: 传送到一个个人传送点。
+      {prefix} delp/delpersonal <传送点>: 删除一个个人传送点。
+      {prefix} setg/setglobal <传送点> [-f]: 在你当前位置设置一个全局传送点。
+      {prefix} tpg/tglobal <传送点>: 传送到一个全局传送点。
+      {prefix} delg/delglobal <传送点>: 删除一个全局传送点。
+      {prefix} list: 列出所有全局和你的个人传送点。
+      {prefix} listp/listpersonal: 列出你的个人传送点。
+      {prefix} listg/listglobal: 列出所有全局传送点。
+      {prefix} tp <玩家>: 传送到另一个玩家
+      {prefix} tphere <玩家>: 传送另一个玩家到你这里
+      {prefix} tpa <玩家>: 请求传送到另一个玩家
+      {prefix} tpahere <玩家>: 请求另一个玩家传送到你这里
+      {prefix} cancel: 取消你待处理的传送请求
+      {prefix} accept/allow [<玩家>]: 接受一个待处理的传送请求，可选指定玩家名称，若不指定则接受最新的请求。
+      {prefix} deny/reject [<玩家>]: 拒绝一个待处理的传送请求，可选指定玩家名称，若不指定则拒绝最新的请求。
+      {prefix} back: 传送回你上次传送或死亡前的位置。
+      {prefix} <传送点/玩家>: 自动识别并传送到个人/全局传送点或在线玩家。（需要在配置中启用 easy_tp）
   not_player_tip: "此命令只能由玩家使用。"
   player_not_online: "玩家 {player} 不在线。"
   no_permission:

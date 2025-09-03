@@ -139,6 +139,8 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
 
     plugin_server.register_command(
         mcdr.Literal(plugin_config.command_prefix)
+        .runs(lambda src: src.reply(get_help_message()))
+        .then(mcdr.Literal("help").runs(lambda src: src.reply(get_help_message())))
         .then(
             mcdr.Literal(["setp", "setpersonal"])
             .requires(**need_player_kwargs)
@@ -368,6 +370,13 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             .runs(lambda src, ctx: easy_tp(src, ctx.get("name")))
         )
     )
+    plugin_server.register_help_message(
+        plugin_config.command_prefix, utils.tr("help.summary")
+    )
+
+
+def get_help_message():
+    return utils.tr("help.content", prefix=plugin_config.command_prefix)
 
 
 def teleport_to_coord(

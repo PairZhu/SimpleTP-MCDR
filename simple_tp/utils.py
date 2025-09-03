@@ -277,5 +277,5 @@ def teleport_check(
     return True
 
 
-def tr(key: str, /, *args, **kwargs) -> str:
+def tr(key: str, /, *args, **kwargs):
     return simple_tp.plugin_server.tr("simple_tp." + key, *args, **kwargs)
