@@ -125,16 +125,24 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
         "failure_message_getter": lambda: utils.tr("not_player_tip"),
     }
 
-    def player_suggestion(src: mcdr.CommandSource) -> List[str]:
+    def get_player_suggestion(src: mcdr.CommandSource) -> List[str]:
         return online_player_counter.get_player_list(try_query=False) or []
+
+    def get_waypoint_suggestion(src: mcdr.CommandSource, is_global: bool) -> List[str]:
+        if is_global:
+            return list(data_manager.get_global_waypoints().keys())
+        if not src.is_player:
+            return []
+        assert isinstance(src, mcdr.PlayerCommandSource)
+        waypoints = data_manager.get_personal_waypoints(src.player)
+        return [name for name in waypoints.keys() if name != constants.BACK_WAYPOINT_ID]
 
     def get_all_names_suggestion(src: mcdr.CommandSource) -> List[str]:
         suggestions = set()
         if src.is_player:
-            assert isinstance(src, mcdr.PlayerCommandSource)
-            suggestions.update(data_manager.get_personal_waypoints(src.player).keys())
-        suggestions.update(data_manager.get_global_waypoints().keys())
-        suggestions.update(online_player_counter.get_player_list(try_query=False) or [])
+            suggestions.update(get_waypoint_suggestion(src, is_global=False))
+        suggestions.update(get_waypoint_suggestion(src, is_global=True))
+        suggestions.update(get_player_suggestion(src))
         return list(suggestions)
 
     plugin_server.register_command(
@@ -202,9 +210,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             .requires(**need_player_kwargs)
             .then(
                 mcdr.Text("waypoint_name")
-                .suggests(
-                    lambda src: data_manager.get_personal_waypoints(src.player).keys()
-                )
+                .suggests(lambda src: get_waypoint_suggestion(src, is_global=False))
                 .runs(
                     lambda src, ctx: teleport_to_waypoint(
                         src, ctx.get("waypoint_name"), is_global=False
@@ -217,7 +223,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             .requires(**need_player_kwargs)
             .then(
                 mcdr.Text("waypoint_name")
-                .suggests(lambda: data_manager.get_global_waypoints().keys())
+                .suggests(lambda: get_waypoint_suggestion(None, is_global=True))
                 .runs(
                     lambda src, ctx: teleport_to_waypoint(
                         src, ctx.get("waypoint_name"), is_global=True
@@ -235,9 +241,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
             .then(
                 mcdr.Text("waypoint_name")
-                .suggests(
-                    lambda src: data_manager.get_personal_waypoints(src.player).keys()
-                )
+                .suggests(lambda src: get_waypoint_suggestion(src, is_global=False))
                 .runs(
                     lambda src, ctx: delete_waypoint(
                         src, ctx.get("waypoint_name"), is_global=False
@@ -291,7 +295,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             .precondition(lambda src: src.has_permission(plugin_config.permissions.tp))
             .then(
                 mcdr.Text("target_player")
-                .suggests(player_suggestion)
+                .suggests(get_player_suggestion)
                 .runs(lambda src, ctx: tp_to_player(src, ctx.get("target_player")))
             )
         )
@@ -303,7 +307,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
             .then(
                 mcdr.Text("target_player")
-                .suggests(player_suggestion)
+                .suggests(get_player_suggestion)
                 .runs(lambda src, ctx: tp_here(src, ctx.get("target_player")))
             )
         )
@@ -313,7 +317,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             .precondition(lambda src: src.has_permission(plugin_config.permissions.tpa))
             .then(
                 mcdr.Text("target_player")
-                .suggests(player_suggestion)
+                .suggests(get_player_suggestion)
                 .runs(lambda src, ctx: tp_request(src, ctx.get("target_player")))
             )
         )
@@ -325,7 +329,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
             .then(
                 mcdr.Text("target_player")
-                .suggests(player_suggestion)
+                .suggests(get_player_suggestion)
                 .runs(
                     lambda src, ctx: tp_request(
                         src, ctx.get("target_player"), is_reversed=True
