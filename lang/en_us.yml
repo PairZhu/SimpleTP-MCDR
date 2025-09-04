@@ -2,26 +2,26 @@ simple_tp:
   help:
     summary: "SimpleTP Commands help information"
     content: |-
-      -- SimpleTP Commands --
-      {prefix} help: Show this help message.
-      {prefix} setp/setpersonal <waypoint> [-f]: Set a personal waypoint at your current position.
-      {prefix} tpp/tpersonal <waypoint>: Teleport to a personal waypoint.
-      {prefix} delp/delpersonal <waypoint>: Delete a personal waypoint.
-      {prefix} setg/setglobal <waypoint> [-f]: Set a global waypoint at your current position.
-      {prefix} tpg/tglobal <waypoint>: Teleport to a global waypoint.
-      {prefix} delg/delglobal <waypoint>: Delete a global waypoint.
-      {prefix} list: List all global and your personal waypoints.
-      {prefix} listp/listpersonal: List your personal waypoints.
-      {prefix} listg/listglobal: List all global waypoints.
-      {prefix} tp <player>: Teleport to another player
-      {prefix} tphere <player>: Teleport another player to you
-      {prefix} tpa <player>: Ask to teleport to another player
-      {prefix} tpahere <player>: Ask another player to teleport to you
-      {prefix} cancel: Cancel your pending teleport request
-      {prefix} accept/allow [<player>]: Accept a pending teleport request, optionally specify the player name, if not specified, accept the latest one.
-      {prefix} deny/reject [<player>]: Deny a pending teleport request, optionally specify the player name, if not specified, deny the latest one.
-      {prefix} back: Teleport back to your previous position before your last teleport or death.
-      {prefix} <waypoint/player>: auto-detect and teleport to a personal/global waypoint or an online player. (Requires easy_tp enabled in config)
+      ==== §bSimpleTP Commands§r ====
+      §b{prefix} help §r-§6 Show this help message.
+      §b{prefix} setp/setpersonal <waypoint> [-f] §r-§6 Set a personal waypoint at your current position.
+      §b{prefix} tpp/tpersonal <waypoint> §r-§6 Teleport to a personal waypoint.
+      §b{prefix} delp/delpersonal <waypoint> §r-§6 Delete a personal waypoint.
+      §b{prefix} setg/setglobal <waypoint> [-f] §r-§6 Set a global waypoint at your current position.
+      §b{prefix} tpg/tglobal <waypoint> §r-§6 Teleport to a global waypoint.
+      §b{prefix} delg/delglobal <waypoint> §r-§6 Delete a global waypoint.
+      §b{prefix} list §r-§6 List all global and your personal waypoints.
+      §b{prefix} listp/listpersonal §r-§6 List your personal waypoints.
+      §b{prefix} listg/listglobal §r-§6 List all global waypoints.
+      §b{prefix} tp <player> §r-§6 Teleport to another player
+      §b{prefix} tphere <player> §r-§6 Teleport another player to you
+      §b{prefix} tpa <player> §r-§6 Ask to teleport to another player
+      §b{prefix} tpahere <player> §r-§6 Ask another player to teleport to you
+      §b{prefix} cancel §r-§6 Cancel your pending teleport request
+      §b{prefix} accept/allow [<player>] §r-§6 Accept a pending teleport request, optionally specify the player name, if not specified, accept the latest one.
+      §b{prefix} deny/reject [<player>] §r-§6 Deny a pending teleport request, optionally specify the player name, if not specified, deny the latest one.
+      §b{prefix} back §r-§6 Teleport back to your previous position before your last teleport or death.
+      §b{prefix} <waypoint/player> §r-§6 auto-detect and teleport to a personal/global waypoint or an online player. (Requires easy_tp enabled in config)
 
   not_player_tip: "This command can only be used by players."
   player_not_online: "Player {player} is not online."
@@ -57,9 +57,9 @@ simple_tp:
       text: "[Deny]"
       hover: "Click to deny the teleport request"
   list:
-    personal_waypoints_header: "--Personal Waypoints--"
+    personal_waypoints_header: "---- Personal Waypoints ----"
     no_personal_waypoints: "No personal waypoints found."
-    global_waypoints_header: "--Global Waypoints--"
+    global_waypoints_header: "---- Global Waypoints ----"
     no_global_waypoints: "No global waypoints found."
   api:
     failed_get_position:
