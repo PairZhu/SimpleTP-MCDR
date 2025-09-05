@@ -6,7 +6,7 @@ import mcdreforged.api.all as mcdr
 class Config(mcdr.Serializable):
     command_prefix: str = "!!stp"
     back_on_death: bool = True
-    save_interval: int = 10  # seconds
+    save_interval: int = 30  # seconds
 
     class __Permissions(mcdr.Serializable):
         back: int = 1
