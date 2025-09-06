@@ -4,11 +4,9 @@
 一个简单的传送插件，用于创建传送点并实现EssentialsX的传送功能。
 
 ## 预览
-![传送按钮](image/README/1754197051138.png)
-![删除按钮](image/README/1754125441339.png)
-![死亡返回](image/README/1754197144539.png)
-![传送请求](image/README/1754733917600.png)
-![传送处理](image/README/1754733952187.png)
+![help](image/README.zh/1757132558004.png)
+![list](image/README.zh/1757133070580.png)
+![back](image/README.zh/1757133504026.png)
 
 ## 特点
 - 支持个人传送点，玩家可以创建和管理自己的传送点，仅对自己可见

@@ -4,11 +4,14 @@
 A simple teleportation plugin designed to create waypoints and implement the teleportation features of EssentialsX.
 
 ## Preview
-![Teleport Button](image/README/1754197051138.png)
+<!-- ![Teleport Button](image/README/1754197051138.png)
 ![Delete Button](image/README/1754125441339.png)
 ![Death Return](image/README/1754197144539.png)
 ![Teleport Request](image/README/1754733917600.png)
-![Teleport Deal](image/README/1754733952187.png)
+![Teleport Deal](image/README/1754733952187.png) -->
+![help](image/README/1757133291389.png)
+![list](image/README/1757133317304.png)
+![back](image/README/1757133375310.png)
 
 ## Features
 - Support for personal waypoints that players can create and manage, visible only to themselves
