@@ -1,6 +1,6 @@
 {
     "id": "simple_tp",
-    "version": "1.3.2",
+    "version": "1.3.3",
     "name": "Simple TP",
     "description": {
         "en_us": "A simple teleportation plugin designed to create waypoints and implement the teleportation features of EssentialsX.",

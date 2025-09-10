@@ -166,7 +166,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
             .then(
                 mcdr.Literal("-f").then(
-                    mcdr.Text("waypoint_name").runs(
+                    mcdr.Text("waypoint_name")
+                    .suggests(lambda src: get_waypoint_suggestion(src, is_global=False))
+                    .runs(
                         lambda src, ctx: set_waypoint(
                             src,
                             ctx.get("waypoint_name"),
@@ -194,7 +196,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             )
             .then(
                 mcdr.Literal("-f").then(
-                    mcdr.Text("waypoint_name").runs(
+                    mcdr.Text("waypoint_name")
+                    .suggests(lambda src: get_waypoint_suggestion(src, is_global=True))
+                    .runs(
                         lambda src, ctx: set_waypoint(
                             src,
                             ctx.get("waypoint_name"),
@@ -257,7 +261,9 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
                 )
             )
             .then(
-                mcdr.Text("waypoint_name").runs(
+                mcdr.Text("waypoint_name")
+                .suggests(lambda: get_waypoint_suggestion(None, is_global=True))
+                .runs(
                     lambda src, ctx: delete_waypoint(
                         src, ctx.get("waypoint_name"), is_global=True
                     )
@@ -347,7 +353,15 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             .requires(**need_player_kwargs)
             .runs(lambda src: deal_tp_request(src, action="accept"))
             .then(
-                mcdr.Text("source_player").runs(
+                mcdr.Text("source_player")
+                .suggests(
+                    lambda src: list(
+                        teleport_request_manager.get_receiver_requests(
+                            src.player
+                        ).keys()
+                    )
+                )
+                .runs(
                     lambda src, ctx: deal_tp_request(
                         src, target_player=ctx.get("source_player"), action="accept"
                     )
@@ -359,7 +373,15 @@ def on_load(server: mcdr.PluginServerInterface, prev_module: any):
             .requires(**need_player_kwargs)
             .runs(lambda src: deal_tp_request(src, action="deny"))
             .then(
-                mcdr.Text("source_player").runs(
+                mcdr.Text("source_player")
+                .suggests(
+                    lambda src: list(
+                        teleport_request_manager.get_receiver_requests(
+                            src.player
+                        ).keys()
+                    )
+                )
+                .runs(
                     lambda src, ctx: deal_tp_request(
                         src, target_player=ctx.get("source_player"), action="deny"
                     )
