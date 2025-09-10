@@ -4,10 +4,10 @@ simple_tp:
     content: |-
       ==== §bSimpleTP 命令§r ====
       §b{prefix} help §r-§6 显示此帮助信息。
-      §b{prefix} setp/setpersonal <传送点> [-f] §r-§6 在你当前位置设置一个个人传送点。
+      §b{prefix} setp/setpersonal [-f] <传送点> §r-§6 在你当前位置设置一个个人传送点。
       §b{prefix} tpp/tpersonal <传送点> §r-§6 传送到一个个人传送点。
       §b{prefix} delp/delpersonal <传送点> §r-§6 删除一个个人传送点。
-      §b{prefix} setg/setglobal <传送点> [-f] §r-§6 在你当前位置设置一个全局传送点。
+      §b{prefix} setg/setglobal [-f] <传送点> §r-§6 在你当前位置设置一个全局传送点。
       §b{prefix} tpg/tglobal <传送点> §r-§6 传送到一个全局传送点。
       §b{prefix} delg/delglobal <传送点> §r-§6 删除一个全局传送点。
       §b{prefix} list §r-§6 列出所有全局和你的个人传送点。

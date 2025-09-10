@@ -4,10 +4,10 @@ simple_tp:
     content: |-
       ==== §bSimpleTP Commands§r ====
       §b{prefix} help §r-§6 Show this help message.
-      §b{prefix} setp/setpersonal <waypoint> [-f] §r-§6 Set a personal waypoint at your current position.
+      §b{prefix} setp/setpersonal [-f] <waypoint> §r-§6 Set a personal waypoint at your current position.
       §b{prefix} tpp/tpersonal <waypoint> §r-§6 Teleport to a personal waypoint.
       §b{prefix} delp/delpersonal <waypoint> §r-§6 Delete a personal waypoint.
-      §b{prefix} setg/setglobal <waypoint> [-f] §r-§6 Set a global waypoint at your current position.
+      §b{prefix} setg/setglobal [-f] <waypoint> §r-§6 Set a global waypoint at your current position.
       §b{prefix} tpg/tglobal <waypoint> §r-§6 Teleport to a global waypoint.
       §b{prefix} delg/delglobal <waypoint> §r-§6 Delete a global waypoint.
       §b{prefix} list §r-§6 List all global and your personal waypoints.
