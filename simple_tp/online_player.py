@@ -16,10 +16,15 @@ class OnlinePlayerCounter:
                 # 防止重复查询
                 if self._players is not None and not rewrite:
                     return
-                player_list = mc_data_api.get_server_player_list().players
+                
+                # 获取玩家列表数据并提取玩家名字列表
+                # API 返回格式: (current_players, max_players, player_names_list)
+                result_tuple = mc_data_api.get_server_player_list()
+                player_list = result_tuple[2]  # 提取第三个元素（玩家名字列表）
                 self._players = set(player_list)
+                
                 simple_tp.plugin_server.logger.info(
-                    f"Queried online players successfully: {player_list}"
+                    f"Queried online players successfully: {list(self._players)}"
                 )
         except Exception as e:
             simple_tp.plugin_server.logger.error(f"Error getting player list: {e}")
