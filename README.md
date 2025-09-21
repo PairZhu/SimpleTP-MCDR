@@ -15,6 +15,7 @@ A simple teleportation plugin designed to create waypoints and implement the tel
 - Support for returning to death location and previous location before teleporting
 - Most commands support clickable operations for convenience
 - Easytp syntax sugar: `stp xxx` is equivalent to `stp tpp/tpg/tp/tpa xxx`, automatically recognizing waypoints and players, with priority `Personal Waypoint > Global Waypoint > Player`
+- Support for comprehensive command argument completion, allowing the use of the Tab key to complete waypoint names and player names (requires the [command_suggest](https://mcdreforged.com/en/plugin/command_suggest) plugin)
 
 ## Commands
 The following examples use the default prefix "!!stp". Adjust according to your configuration file.
